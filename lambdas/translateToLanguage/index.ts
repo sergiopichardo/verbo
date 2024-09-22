@@ -1,4 +1,4 @@
-import { APIGatewayEvent, Context } from "aws-lambda";
+import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult, Context } from "aws-lambda";
 
 import {
   TranslateClient,
@@ -9,35 +9,52 @@ import {
 
 const translateClient = new TranslateClient({});
 
-export const handler = async (event: APIGatewayEvent, context: Context) => {
-  console.log(event);
-  console.log(context);
+const translateText = async (sourceLanguageCode: string, targetLanguageCode: string, text: string): Promise<string> => {
   try {
-    const now = new Date(Date.now()).toString();
-
     const inputParams: TranslateTextCommandInput = {
-      SourceLanguageCode: "en",
-      TargetLanguageCode: "fr",
-      Text: "Hello from Lambda!",
+      SourceLanguageCode: sourceLanguageCode,
+      TargetLanguageCode: targetLanguageCode,
+      Text: text,
     };
 
     const translateCommand = new TranslateTextCommand(inputParams);
+    const result: TranslateTextCommandOutput = await translateClient.send(translateCommand);
+    
+    return result.TranslatedText || '';
+  } catch (error) {
+    console.error('Error in translateText():', error);
+    throw new Error('Failed to translate text');
+  }
+};
 
-    const result: TranslateTextCommandOutput = await translateClient.send(
-      translateCommand
-    );
+export const handler: APIGatewayProxyHandler = async (
+  event: APIGatewayProxyEvent, 
+): Promise<APIGatewayProxyResult> => {
+  try {
+    if (!event.body) {
+      throw new Error("No body provided");
+    }
 
-    console.log(result);
+    const body = JSON.parse(event.body);
+    
+    const { sourceLanguageCode, targetLanguageCode, text } = body;
+
+    const translatedText = await translateText(sourceLanguageCode, targetLanguageCode, text);
+
+    console.log({ translatedText });
 
     return {
       statusCode: 200,
-      body: now,
+      body: JSON.stringify({ translatedText }),
     };
-  } catch (error) {
+
+  } catch (error: unknown) {
     console.log(error);
+
     return {
       statusCode: 500,
-      body: JSON.stringify(error),
+      body: JSON.stringify("Internal server error"),
     };
   }
 };
+  

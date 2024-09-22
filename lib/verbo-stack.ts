@@ -49,7 +49,7 @@ export class VerboStack extends cdk.Stack {
     const restApi = new apigateway.RestApi(this, "translateToLanguageRestApi");
 
     restApi.root.addMethod(
-      "GET",
+      "POST",
       new apigateway.LambdaIntegration(translationLambda)
     );
 
