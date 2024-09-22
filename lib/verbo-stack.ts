@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as cdk from "aws-cdk-lib";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
@@ -19,6 +20,12 @@ export class VerboStack extends cdk.Stack {
   private createTranslationLambda(
     props: VerboStackProps
   ): lambdaNodejs.NodejsFunction {
+
+    const translationIamPolicy = new iam.PolicyStatement({
+      actions: ["translate:TranslateText"],
+      resources: ["*"],
+    });
+
     const translationLambda = new lambdaNodejs.NodejsFunction(
       this,
       "translateToLanguage",
@@ -26,18 +33,15 @@ export class VerboStack extends cdk.Stack {
         entry: path.join(__dirname, "../lambdas/translateToLanguage/index.ts"),
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: "handler",
+        initialPolicy: [
+          translationIamPolicy,
+        ],
       }
-    );
-
-    translationLambda.addToRolePolicy(
-      new cdk.aws_iam.PolicyStatement({
-        actions: ["translate:TranslateText"],
-        resources: ["*"],
-      })
     );
 
     return translationLambda;
   }
+
 
   private createTranslationRestApi(
     translationLambda: lambdaNodejs.NodejsFunction
