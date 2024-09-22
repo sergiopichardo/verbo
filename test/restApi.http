@@ -1,0 +1,4 @@
+@URL=""
+
+GET {{URL}} HTTP/1.1
+
