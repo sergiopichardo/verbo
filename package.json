@@ -9,7 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy": "cdk deploy --profile default"
+    "deploy": "cdk deploy --profile default --require-approval never"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
