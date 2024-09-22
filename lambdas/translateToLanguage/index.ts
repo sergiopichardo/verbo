@@ -45,7 +45,10 @@ export const handler: APIGatewayProxyHandler = async (
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ translatedText }),
+      body: JSON.stringify({ 
+        text: translatedText,
+        timestamp: new Date().toISOString(),
+      }),
     };
 
   } catch (error: unknown) {
@@ -57,4 +60,3 @@ export const handler: APIGatewayProxyHandler = async (
     };
   }
 };
-  
