@@ -53,6 +53,11 @@ export class VerboStack extends cdk.Stack {
       new apigateway.LambdaIntegration(translationLambda)
     );
 
+    new cdk.CfnOutput(this, "restApiUrl", { 
+      value: restApi.url,
+      exportName: "restApiUrl",
+    });
+
     return restApi;
   }
 }
