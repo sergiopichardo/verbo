@@ -1,4 +1,13 @@
-import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult, Context } from "aws-lambda";
+import { 
+  APIGatewayProxyEvent, 
+  APIGatewayProxyHandler, 
+  APIGatewayProxyResult, 
+} from "aws-lambda";
+
+import {
+	StatusCodes,
+} from 'http-status-codes';
+
 
 import {
   TranslateClient,
@@ -56,7 +65,7 @@ export const handler: APIGatewayProxyHandler = async (
 
     console.log({ translatedText });
 
-    return sendResponse(200, {
+    return sendResponse(StatusCodes.OK, {
       text: translatedText,
       timestamp: new Date().toISOString(),
     });
@@ -65,13 +74,13 @@ export const handler: APIGatewayProxyHandler = async (
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (error.name === "UnsupportedLanguagePairException") {
-        return sendResponse(400, {
+        return sendResponse(StatusCodes.BAD_REQUEST, {
           errorMessage: "Unsupported language pair",
         });
       }
     } 
     
-    return sendResponse(500, {
+    return sendResponse(StatusCodes.INTERNAL_SERVER_ERROR, {
       message: "Unknown error",
       error: error,
     });
