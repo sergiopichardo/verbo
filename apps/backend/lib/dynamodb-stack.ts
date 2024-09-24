@@ -3,9 +3,7 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 
 import { Construct } from "constructs";
 
-interface DynamoDBStackProps extends cdk.StackProps {
-    appName: string;
-}
+interface DynamoDBStackProps extends cdk.StackProps {}
 
 export class DynamoDBStack extends cdk.Stack {
   private readonly _translationsTable: dynamodb.TableV2;

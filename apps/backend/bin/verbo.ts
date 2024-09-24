@@ -9,11 +9,12 @@ const appName = "Verbo"
 
 const app = new cdk.App();
 
-const computeStack = new ComputeStack(app, `${appName}ComputeStack`, {});
+const dynamodbStack = new DynamoDBStack(app, `${appName}DynamoDBStack`, {});
 
-const dynamodbStack = new DynamoDBStack(app, `${appName}DynamoDBStack`, {
-  appName: appName,
+const computeStack = new ComputeStack(app, `${appName}ComputeStack`, {
+  translationsTable: dynamodbStack.translationsTable,
 });
+
 
 new ApiStack(app, `${appName}ApiStack`, {
   translationsTable: dynamodbStack.translationsTable,

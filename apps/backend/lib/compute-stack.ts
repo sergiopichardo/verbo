@@ -2,10 +2,13 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as path from "path";
 
-interface ComputeStackProps extends cdk.StackProps {}
+interface ComputeStackProps extends cdk.StackProps {
+  translationsTable: dynamodb.TableV2;
+}
 
 export class ComputeStack extends cdk.Stack {
   private readonly _translationLambda: lambdaNodejs.NodejsFunction;
@@ -13,7 +16,7 @@ export class ComputeStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ComputeStackProps) {
     super(scope, id, props);
 
-    this._translationLambda = this._createTranslationLambda();
+    this._translationLambda = this._createTranslationLambda(props);
 
   }
 
@@ -21,7 +24,7 @@ export class ComputeStack extends cdk.Stack {
     return this._translationLambda;
   }
 
-  private _createTranslationLambda(): lambdaNodejs.NodejsFunction {
+  private _createTranslationLambda(props: ComputeStackProps): lambdaNodejs.NodejsFunction {
 
     const currentDir = __dirname;
     const projectRoot = path.resolve(currentDir, '..', '..', '..');
@@ -40,6 +43,17 @@ export class ComputeStack extends cdk.Stack {
       resources: ["*"],
     });
 
+    const translationTablePolicy = new iam.PolicyStatement({
+      actions: [
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Scan",
+        "dynamodb:Query",
+      ],
+      resources: [props.translationsTable.tableArn],
+    });
+
     const translationLambda = new lambdaNodejs.NodejsFunction(
       this,
       "translateToLanguage",
@@ -47,11 +61,18 @@ export class ComputeStack extends cdk.Stack {
         entry: translateLambdaPath,
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: "handler",
-        initialPolicy: [translationIamPolicy],
+        initialPolicy: [
+          translationIamPolicy, 
+          translationTablePolicy
+        ],
         bundling: {
           externalModules: ["@aws-sdk/*"],
           nodeModules: ["@aws-sdk/client-translate"],
-        }
+        },
+        environment: {
+          TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
+          TRANSLATIONS_PARTITION_KEY: "requestId",
+        },
       }
     );
 
