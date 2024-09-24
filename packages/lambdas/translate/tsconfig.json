@@ -6,7 +6,6 @@
       "es2020",
       "dom"
     ],
-    "esModuleInterop": true,
     "declaration": true,
     "strict": true,
     "noImplicitAny": true,
@@ -22,14 +21,10 @@
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
     "typeRoots": [
-      "../../node_modules/@types"
-    ],
-    "types": [
-      "node"
+      "./node_modules/@types"
     ]
   },
   "exclude": [
-    "node_modules",
-    "cdk.out"
+    "node_modules"
   ]
 }

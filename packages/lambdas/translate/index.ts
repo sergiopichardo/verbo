@@ -5,16 +5,16 @@ import {
 } from "aws-lambda";
 
 import {
-	StatusCodes,
-} from 'http-status-codes';
-
-
-import {
   TranslateClient,
   TranslateTextCommand,
   TranslateTextCommandInput,
   TranslateTextCommandOutput,
 } from "@aws-sdk/client-translate";
+
+import { 
+  TranslationRequest, 
+  TranslationResponse 
+} from "@verbo/shared-types";
 
 const translateClient = new TranslateClient({});
 
@@ -28,8 +28,12 @@ const translateText = async (sourceLanguageCode: string, targetLanguageCode: str
 
     const translateCommand = new TranslateTextCommand(inputParams);
     const result: TranslateTextCommandOutput = await translateClient.send(translateCommand);
+
+    if (!result.TranslatedText) {
+      throw new Error("Unable to translate text");
+    }
     
-    return result.TranslatedText || '';
+    return result.TranslatedText;
   } catch (error) {
     console.error('Error in translateText():', error);
     throw error;
@@ -57,30 +61,33 @@ export const handler: APIGatewayProxyHandler = async (
       throw new Error("No body provided");
     }
 
-    const body = JSON.parse(event.body);
+    const body = JSON.parse(event.body) as TranslationRequest;
     
-    const { sourceLanguageCode, targetLanguageCode, text } = body;
+    if (!body.sourceLanguageCode || !body.targetLanguageCode || !body.sourceText) {
+      throw new Error("Missing required properties in the request body");
+    }
+    
+    const { sourceLanguageCode, targetLanguageCode, sourceText } = body;
 
-    const translatedText = await translateText(sourceLanguageCode, targetLanguageCode, text);
+    const translatedText = await translateText(sourceLanguageCode, targetLanguageCode, sourceText);
 
-    console.log({ translatedText });
-
-    return sendResponse(StatusCodes.OK, {
-      text: translatedText,
+    const translationResponse: TranslationResponse = {
       timestamp: new Date().toISOString(),
-    });
+      targetText: translatedText,
+    };
 
+    return sendResponse(200, translationResponse);
 
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (error.name === "UnsupportedLanguagePairException") {
-        return sendResponse(StatusCodes.BAD_REQUEST, {
+        return sendResponse(400, {
           errorMessage: "Unsupported language pair",
         });
       }
     } 
     
-    return sendResponse(StatusCodes.INTERNAL_SERVER_ERROR, {
+    return sendResponse(500, {
       message: "Unknown error",
       error: error,
     });

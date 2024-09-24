@@ -1,0 +1,11 @@
+{
+  "name": "@verbo/translate",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "devDependencies": {
+    "@types/node": "20.11.19",
+    "@verbo/shared-types": "*",
+    "esbuild": "^0.24.0",
+    "ts-node": "^10.9.2"
+  }
+}

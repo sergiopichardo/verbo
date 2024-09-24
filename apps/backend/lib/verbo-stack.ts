@@ -21,6 +21,18 @@ export class VerboStack extends cdk.Stack {
     props: VerboStackProps
   ): lambdaNodejs.NodejsFunction {
 
+    const currentDir = __dirname;
+    const projectRoot = path.resolve(currentDir, '..', '..', '..');
+    const lambdasDirPath = path.join(projectRoot, 'packages', 'lambdas');
+
+    const translateLambdaPath = path.resolve(
+      lambdasDirPath,
+      'translate',
+      'index.ts'
+    );
+
+    console.log('Lambda path:', translateLambdaPath);
+
     const translationIamPolicy = new iam.PolicyStatement({
       actions: ["translate:TranslateText"],
       resources: ["*"],
@@ -30,18 +42,19 @@ export class VerboStack extends cdk.Stack {
       this,
       "translateToLanguage",
       {
-        entry: path.join(__dirname, "../lambdas/translateToLanguage/index.ts"),
+        entry: translateLambdaPath,
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: "handler",
-        initialPolicy: [
-          translationIamPolicy,
-        ],
+        initialPolicy: [translationIamPolicy],
+        bundling: {
+          externalModules: ["@aws-sdk/*"],
+          nodeModules: ["@aws-sdk/client-translate"],
+        }
       }
     );
 
     return translationLambda;
   }
-
 
   private createTranslationRestApi(
     translationLambda: lambdaNodejs.NodejsFunction
@@ -50,10 +63,13 @@ export class VerboStack extends cdk.Stack {
       description: "This service translates text from one language to another.",
     });
 
-    const translateResource = restApi.root.addResource('translate');
-    translateResource.addMethod("POST", new apigateway.LambdaIntegration(translationLambda));
+    const translateResource = restApi.root.addResource("translate");
+    translateResource.addMethod(
+      "POST",
+      new apigateway.LambdaIntegration(translationLambda)
+    );
 
-    new cdk.CfnOutput(this, "restApiUrl", { 
+    new cdk.CfnOutput(this, "restApiUrl", {
       value: restApi.url,
       exportName: "restApiUrl",
     });
