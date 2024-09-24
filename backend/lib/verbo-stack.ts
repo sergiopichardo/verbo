@@ -46,12 +46,12 @@ export class VerboStack extends cdk.Stack {
   private createTranslationRestApi(
     translationLambda: lambdaNodejs.NodejsFunction
   ): apigateway.RestApi {
-    const restApi = new apigateway.RestApi(this, "translateToLanguageRestApi");
+    const restApi = new apigateway.RestApi(this, "translateToLanguageRestApi", {
+      description: "This service translates text from one language to another.",
+    });
 
-    restApi.root.addMethod(
-      "POST",
-      new apigateway.LambdaIntegration(translationLambda)
-    );
+    const translateResource = restApi.root.addResource('translate');
+    translateResource.addMethod("POST", new apigateway.LambdaIntegration(translationLambda));
 
     new cdk.CfnOutput(this, "restApiUrl", { 
       value: restApi.url,

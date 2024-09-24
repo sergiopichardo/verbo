@@ -23,8 +23,21 @@ const translateText = async (sourceLanguageCode: string, targetLanguageCode: str
     return result.TranslatedText || '';
   } catch (error) {
     console.error('Error in translateText():', error);
-    throw new Error('Failed to translate text');
+    throw error;
   }
+};
+
+const sendResponse = (statusCode: number, body: any) => {
+  return {
+    statusCode,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": true,
+      "Access-Control-Allow-Headers": "*",
+      "Access-Control-Allow-Methods": "*",
+    },
+    body: JSON.stringify(body),
+  };
 };
 
 export const handler: APIGatewayProxyHandler = async (
@@ -43,20 +56,24 @@ export const handler: APIGatewayProxyHandler = async (
 
     console.log({ translatedText });
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ 
-        text: translatedText,
-        timestamp: new Date().toISOString(),
-      }),
-    };
+    return sendResponse(200, {
+      text: translatedText,
+      timestamp: new Date().toISOString(),
+    });
+
 
   } catch (error: unknown) {
-    console.log(error);
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify("Internal server error"),
-    };
+    if (error instanceof Error) {
+      if (error.name === "UnsupportedLanguagePairException") {
+        return sendResponse(400, {
+          errorMessage: "Unsupported language pair",
+        });
+      }
+    } 
+    
+    return sendResponse(500, {
+      message: "Unknown error",
+      error: error,
+    });
   }
 };
