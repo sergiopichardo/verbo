@@ -2,8 +2,9 @@
   "name": "verbo",
   "private": true,
   "scripts": {
-    "frontend:dev": "npm run dev --workspace=@verbo/frontend",
-    "backend:deploy": "npm run deploy --workspace=@verbo/backend"
+    "fe:dev": "npm run dev --workspace=@verbo/frontend",
+    "be:deploy": "npm run deploy --workspace=@verbo/backend",
+    "be:destroy": "npm run destroy --workspace=@verbo/backend"
   },
   "workspaces": [
     "apps/*",

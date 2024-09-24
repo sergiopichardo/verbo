@@ -1,4 +1,5 @@
-import backendOutputs from "../config/backend-outputs.json";
+import backendOutputs from '../config/backendOutputs.json';
+
 import { TranslationRequest, TranslationResponse } from "@verbo/shared-types";
 
 type TranslateTextInput = {
@@ -19,21 +20,29 @@ export const translateText = async ({
         sourceText: inputText
     };
 
+    const baseUrl = backendOutputs.VerboApiStack.restApiUrl
+
     try {
-        const response = await fetch(`${backendOutputs.VerboStack.restApiUrl}translate`, {
-            method: "POST",
+        const response = await fetch(`${baseUrl}/translate`, {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
+                'Content-Type': 'application/json',
             },
+            mode: 'cors',
             body: JSON.stringify(translationRequest),
         });
 
-        const translationResponse: TranslationResponse = await response.json();
+        if (!response.ok) {
+            const errorBody = await response.text();
+            console.error('Error response:', errorBody);
+            throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+        }
 
+        const translationResponse: TranslationResponse = await response.json();
         return translationResponse;
         
     } catch (error) {
-        console.error("Error in translateText():", error);
+        console.error("Fetch error:", error);
         throw error;
     }
-  }
+}

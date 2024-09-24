@@ -3,7 +3,9 @@ import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 
 import { Construct } from "constructs";
 
-interface DynamoDBStackProps extends cdk.StackProps {}
+interface DynamoDBStackProps extends cdk.StackProps {
+    appName: string;
+}
 
 export class DynamoDBStack extends cdk.Stack {
   private readonly _translationsTable: dynamodb.TableV2;
@@ -19,8 +21,7 @@ export class DynamoDBStack extends cdk.Stack {
   }
 
   private _createTranslationsTable(): dynamodb.TableV2 {
-    return new dynamodb.TableV2(this, 'TranslationsTable', {
-        tableName: "translations",
+    return new dynamodb.TableV2(this, `TranslationsTable`, {
         partitionKey: { 
             name: 'requestId', 
             type: dynamodb.AttributeType.STRING 

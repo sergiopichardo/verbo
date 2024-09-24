@@ -9,13 +9,14 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy": "cdk deploy --profile default --outputs-file ../frontend/src/config/backend-outputs.json --require-approval never"
+    "deploy": "cdk deploy --all --profile default --outputs-file backendOutputs.json --require-approval never",
+    "postdeploy": "cp backendOutputs.json ../frontend/src/config/backendOutputs.json",
+    "destroy": "cdk destroy --all --profile default"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^22.6.1",
     "aws-cdk": "2.159.1",
-    "http-status-codes": "^2.3.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
