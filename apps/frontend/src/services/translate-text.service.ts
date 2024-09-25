@@ -23,7 +23,7 @@ export const translateText = async ({
     const baseUrl = backendOutputs.VerboApiStack.restApiUrl
 
     try {
-        const response = await fetch(`${baseUrl}/translate`, {
+        const response = await fetch(`${baseUrl}/translations`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

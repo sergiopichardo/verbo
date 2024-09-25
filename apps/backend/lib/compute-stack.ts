@@ -11,60 +11,53 @@ interface ComputeStackProps extends cdk.StackProps {
 }
 
 export class ComputeStack extends cdk.Stack {
-  private readonly _translationLambda: lambdaNodejs.NodejsFunction;
+  public readonly translateLambda: lambdaNodejs.NodejsFunction;
+  public readonly getTranslationsLambda: lambdaNodejs.NodejsFunction;
 
   constructor(scope: Construct, id: string, props: ComputeStackProps) {
     super(scope, id, props);
 
-    this._translationLambda = this._createTranslationLambda(props);
-
+    // Lambda functions
+    this.translateLambda = this._createTranslateToLanguageLambda('translate', props);
+    this.getTranslationsLambda = this._createGetTranslationsLambda('getTranslations', props);
   }
 
-  public get translationLambda(): lambdaNodejs.NodejsFunction {
-    return this._translationLambda;
-  }
+  private _createGetTranslationsLambda(
+    lambdaName: string,
+    props: ComputeStackProps,
+  ): lambdaNodejs.NodejsFunction {
 
-  private _createTranslationLambda(props: ComputeStackProps): lambdaNodejs.NodejsFunction {
-
-    const currentDir = __dirname;
-    const projectRoot = path.resolve(currentDir, '..', '..', '..');
-    const lambdasDirPath = path.join(projectRoot, 'packages', 'lambdas');
-
-    const translateLambdaPath = path.resolve(
-      lambdasDirPath,
-      'translate',
-      'index.ts'
+    const getTranslationsLambda = new lambdaNodejs.NodejsFunction(
+      this,
+      lambdaName,
+      {
+        entry: this._getLambdaPath(lambdaName),
+        runtime: lambda.Runtime.NODEJS_20_X,
+        handler: "handler",
+        initialPolicy: this._getPolicies(lambdaName, props),
+        environment: {
+          TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
+        },
+      }
     );
 
-    console.log('Lambda path:', translateLambdaPath);
+    return getTranslationsLambda;
+  } 
 
-    const translationIamPolicy = new iam.PolicyStatement({
-      actions: ["translate:TranslateText"],
-      resources: ["*"],
-    });
+  private _createTranslateToLanguageLambda(
+    lambdaName: string,
+    props: ComputeStackProps,
+  ): lambdaNodejs.NodejsFunction {
 
-    const translationTablePolicy = new iam.PolicyStatement({
-      actions: [
-        "dynamodb:PutItem",
-        "dynamodb:GetItem",
-        "dynamodb:DeleteItem",
-        "dynamodb:Scan",
-        "dynamodb:Query",
-      ],
-      resources: [props.translationsTable.tableArn],
-    });
 
     const translationLambda = new lambdaNodejs.NodejsFunction(
       this,
-      "translateToLanguage",
+      lambdaName,
       {
-        entry: translateLambdaPath,
+        entry: this._getLambdaPath(lambdaName),
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: "handler",
-        initialPolicy: [
-          translationIamPolicy, 
-          translationTablePolicy
-        ],
+        initialPolicy: this._getPolicies(lambdaName, props),
         bundling: {
           externalModules: ["@aws-sdk/*"],
           nodeModules: ["@aws-sdk/client-translate"],
@@ -77,5 +70,50 @@ export class ComputeStack extends cdk.Stack {
     );
 
     return translationLambda;
+  }
+
+  private _getLambdaPath(lambdaName: string): string {
+    const currentDir = __dirname;
+    const projectRoot = path.resolve(currentDir, '..', '..', '..');
+    const lambdasDirPath = path.join(projectRoot, 'packages', 'lambdas');
+
+    return path.resolve(
+      lambdasDirPath,
+      lambdaName,
+      'index.ts'
+    );
+  }
+
+  private _getPolicies(lambdaName: string, props: ComputeStackProps): iam.PolicyStatement[] {
+    // Policies 
+    const translationServicePolicy = new iam.PolicyStatement({
+      actions: ["translate:TranslateText"],
+      resources: ["*"],
+    });
+
+    const getTranslationsTablePolicy = new iam.PolicyStatement({
+      actions: [
+        "dynamodb:Scan",
+      ],
+      resources: [props.translationsTable.tableArn],
+    });
+
+    const translationTablePolicy = new iam.PolicyStatement({
+      actions: [
+      "dynamodb:PutItem",
+      ],
+      resources: [props.translationsTable.tableArn],
+    });
+    
+    const policiesMap: Record<string, iam.PolicyStatement[]> = {
+      translate: [translationServicePolicy, translationTablePolicy],
+      getTranslations: [translationServicePolicy, getTranslationsTablePolicy],
+    }
+
+    if (!(lambdaName in policiesMap)) {
+      throw new Error(`Lambda ${lambdaName} not found in policies map`);
+    }
+
+    return policiesMap[lambdaName];
   }
 }

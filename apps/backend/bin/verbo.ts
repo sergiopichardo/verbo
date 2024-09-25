@@ -18,5 +18,6 @@ const computeStack = new ComputeStack(app, `${appName}ComputeStack`, {
 
 new ApiStack(app, `${appName}ApiStack`, {
   translationsTable: dynamodbStack.translationsTable,
-  translationLambda: computeStack.translationLambda,
+  translateLambda: computeStack.translateLambda,
+  getTranslationsLambda: computeStack.getTranslationsLambda,
 });

@@ -1,21 +1,9 @@
 import { 
-  PutCommand, 
-  PutCommandInput 
-} from "@aws-sdk/lib-dynamodb";
-
-import { 
   APIGatewayProxyEvent, 
   APIGatewayProxyHandler, 
   APIGatewayProxyResult, 
   Context,
 } from "aws-lambda";
-
-import {
-  TranslateClient,
-  TranslateTextCommand,
-  TranslateTextCommandInput,
-  TranslateTextCommandOutput,
-} from "@aws-sdk/client-translate";
 
 import { 
   TranslationDBObject,
@@ -23,13 +11,9 @@ import {
   TranslationResponse 
 } from "@verbo/shared-types";
 
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { saveTranslation, translateText } from "../services";
+import { sendResponse } from "../utils";
 
-const ddbClient = new DynamoDBClient({});
-const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
-
-const translateClient = new TranslateClient({});
 
 const {
   TRANSLATIONS_TABLE_NAME, 
@@ -43,57 +27,6 @@ if (!TRANSLATIONS_TABLE_NAME) {
 if (!TRANSLATIONS_PARTITION_KEY) {
   throw new Error("Missing required TRANSLATIONS_PARTITION_KEY environment variable");
 }
-
-const translateText = async (sourceLanguageCode: string, targetLanguageCode: string, text: string): Promise<string> => {
-  try {
-    const inputParams: TranslateTextCommandInput = {
-      SourceLanguageCode: sourceLanguageCode,
-      TargetLanguageCode: targetLanguageCode,
-      Text: text,
-    };
-
-    const translateCommand = new TranslateTextCommand(inputParams);
-    const result: TranslateTextCommandOutput = await translateClient.send(translateCommand);
-
-    if (!result.TranslatedText) {
-      throw new Error("Unable to translate text");
-    }
-    
-    return result.TranslatedText;
-  } catch (error) {
-    console.error('Error in translateText():', error);
-    throw error;
-  }
-};
-
-const sendResponse = (statusCode: number, body: any) => {
-  return {
-    statusCode,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": true,
-      "Access-Control-Allow-Headers": "*",
-      "Access-Control-Allow-Methods": "*",
-    },
-    body: JSON.stringify(body),
-  };
-};
-
-const saveTranslation = async (translation: TranslationDBObject) => {
-  try {
-    const params: PutCommandInput = {
-      TableName: TRANSLATIONS_TABLE_NAME,
-      Item: translation,
-    };
-
-    const command = new PutCommand(params);
-
-    await ddbDocClient.send(command);
-  } catch (error) {
-    console.error('Error saving translation to DynamoDB:', error);
-    throw error;
-  }
-};
 
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent, 
@@ -128,7 +61,7 @@ export const handler: APIGatewayProxyHandler = async (
       timestamp: new Date().toISOString(),
     };
 
-    await saveTranslation(tableObj);
+    await saveTranslation(tableObj, TRANSLATIONS_TABLE_NAME);
 
     return sendResponse(200, translationResponse);
 

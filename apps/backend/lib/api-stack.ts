@@ -7,7 +7,8 @@ import { Construct } from "constructs";
 
 interface ApiStackProps extends cdk.StackProps {
   translationsTable: dynamodb.TableV2;  
-  translationLambda: lambdaNodejs.NodejsFunction;
+  translateLambda: lambdaNodejs.NodejsFunction;
+  getTranslationsLambda: lambdaNodejs.NodejsFunction;
 }
 
 export class ApiStack extends cdk.Stack {
@@ -28,13 +29,18 @@ export class ApiStack extends cdk.Stack {
       },
     });
 
-    props.translationsTable.grantReadWriteData(props.translationLambda);
+    const translationsResource = restApi.root.addResource("translations");
 
-    const translateResource = restApi.root.addResource("translate");
-    translateResource.addMethod(
+    translationsResource
+    .addMethod(
       "POST",
-      new apigateway.LambdaIntegration(props.translationLambda)
+      new apigateway.LambdaIntegration(props.translateLambda)
+    );
 
+    translationsResource
+    .addMethod(
+      "GET",
+      new apigateway.LambdaIntegration(props.getTranslationsLambda)
     );
 
     new cdk.CfnOutput(this, "restApiUrl", {
