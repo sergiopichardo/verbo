@@ -24,11 +24,8 @@ export const handler: APIGatewayProxyHandler = async (
         const tableName = process.env.TRANSLATIONS_TABLE_NAME as string;
 
         const translations = await getTranslations(tableName) as TranslationDBObject[];
+        return sendResponse(200, { translations });
 
-        return sendResponse(200, {
-            translations: translations
-        });
-        
     } catch (error) {
         console.error('Error in getTranslations():', error);    
 

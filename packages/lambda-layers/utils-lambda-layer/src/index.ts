@@ -1,0 +1,1 @@
+export * as gateway from './api-gateway-response';

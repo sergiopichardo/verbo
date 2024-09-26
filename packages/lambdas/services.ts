@@ -89,7 +89,12 @@ export const getTranslations = async (
       throw new Error("No translations found");
     }
 
-    return result.Items;
+    // Sort the items by createdAt in descending order
+    const sortedItems = result.Items.sort((a, b) => {
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
+
+    return sortedItems;
 
   } catch (error) {
     console.error('Error getting translations from DynamoDB:', error);

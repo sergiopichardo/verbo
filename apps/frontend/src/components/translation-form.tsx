@@ -22,10 +22,11 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "./ui/input";
 import { translateText } from "@/services/translate-text.service";
-import { TranslationResponse } from "@verbo/shared-types";
+import toast from "react-hot-toast";
+
 
 type TranslationFormProps = {
-  onTranslation: (result: TranslationResponse) => void;
+  onTranslation: () => void;
 };
 
 export default function TranslationForm({
@@ -45,13 +46,33 @@ export default function TranslationForm({
       return;
     }
 
-    const response: TranslationResponse = await translateText({
-      inputText: data.inputText,
-      inputLanguage: data.inputLanguage,
-      outputLanguage: data.outputLanguage,
-    });
+    try {
+      const translation = await translateText({
+        inputText: data.inputText,
+        inputLanguage: data.inputLanguage,
+        outputLanguage: data.outputLanguage,
+      });
 
-    onTranslation(response);
+      if (!translation) {
+        throw new Error("Error in translation");
+      }
+
+      onTranslation();
+
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message, {
+          duration: 5000,
+        });
+      }
+    } finally {
+      form.reset({
+        inputText: "",
+        inputLanguage: "",
+        outputLanguage: "",
+      });
+    }
+
   };
 
   return (

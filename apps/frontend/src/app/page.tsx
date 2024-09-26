@@ -1,17 +1,28 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { TranslationDBObject } from "@verbo/shared-types";
+
 import TranslationForm from "@/components/translation-form";
-import { TranslationResponse } from "@verbo/shared-types";
+import { TranslationsList } from "@/components/translations-list";
+
+import { getTranslations } from "@/services/getTranslations.service";
 
 export default function Home() {
-  const [translationResult, setTranslationResult] = useState<TranslationResponse | null>(null);
+  const [translations, setTranslations] = useState<TranslationDBObject[]>([]);
 
-  const handleTranslation = (result: TranslationResponse) => {
-    setTranslationResult(result);
+  const fetchTranslations = async () => {
+    const data = await getTranslations();
+    setTranslations(data);
   };
 
-  console.log("translationResult:", translationResult);
+  const handleTranslation = async () => {
+    await fetchTranslations();
+  };
+
+  useEffect(() => {
+    fetchTranslations();
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col items-center p-24">
@@ -19,13 +30,10 @@ export default function Home() {
 
       <TranslationForm onTranslation={handleTranslation} />
 
-      {translationResult && (
-        <div className="mt-8 p-4 border rounded-lg">
-          <h2 className="text-2xl font-semibold mb-2">Translation Result:</h2>
-          <p>{translationResult.targetText}</p>
-          <p className="text-sm text-gray-500 mt-2">Translated at: {translationResult.timestamp}</p>
-        </div>
-      )}
+      <hr className="my-8 w-[200px]" />
+
+      <TranslationsList translations={translations} />
+
     </div>
   );
 }

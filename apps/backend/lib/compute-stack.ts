@@ -98,7 +98,7 @@ export class ComputeStack extends cdk.Stack {
       resources: [props.translationsTable.tableArn],
     });
 
-    const translationTablePolicy = new iam.PolicyStatement({
+    const addTranslationsTablePolicy = new iam.PolicyStatement({
       actions: [
       "dynamodb:PutItem",
       ],
@@ -106,7 +106,7 @@ export class ComputeStack extends cdk.Stack {
     });
     
     const policiesMap: Record<string, iam.PolicyStatement[]> = {
-      translate: [translationServicePolicy, translationTablePolicy],
+      translate: [translationServicePolicy, addTranslationsTablePolicy],
       getTranslations: [translationServicePolicy, getTranslationsTablePolicy],
     }
 
