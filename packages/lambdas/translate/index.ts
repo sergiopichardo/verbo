@@ -12,7 +12,8 @@ import {
 } from "@verbo/shared-types";
 
 import { saveTranslation, translateText } from "../services";
-import { sendResponse } from "../utils";
+
+import { gateway } from '/opt/nodejs/utils';
 
 
 const {
@@ -63,20 +64,15 @@ export const handler: APIGatewayProxyHandler = async (
 
     await saveTranslation(tableObj, TRANSLATIONS_TABLE_NAME);
 
-    return sendResponse(200, translationResponse);
+    return gateway.createSuccessJsonResponse(translationResponse);
 
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (error.name === "UnsupportedLanguagePairException") {
-        return sendResponse(400, {
-          errorMessage: "Unsupported language pair",
-        });
+        return gateway.createErrorJsonResponse("Unsupported language pair");
       }
     } 
     
-    return sendResponse(500, {
-      message: "Unknown error",
-      // error: error,
-    });
+    return gateway.createErrorJsonResponse("Unknown error");
   }
 };

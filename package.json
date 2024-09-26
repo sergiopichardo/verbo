@@ -5,7 +5,7 @@
     "fe:dev": "npm run dev --workspace=@verbo/frontend",
     "be:deploy": "npm run deploy --workspace=@verbo/backend",
     "be:destroy": "npm run destroy --workspace=@verbo/backend",
-    "utils-layer:build": "npm run build --workspace=@verbo/utils-lambda-layer"
+    "utils-layer:build": "npm run build --workspace=@verbo/utils"
   },
   "workspaces": [
     "apps/*",

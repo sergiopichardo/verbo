@@ -5,7 +5,7 @@ type CreateHandlerResponseInput = {
   body: string;
 }
 
-export const createApiGatewayResponse = ({ 
+const createApiGatewayResponse = ({ 
   statusCode, 
   body 
 }: CreateHandlerResponseInput): lambda.APIGatewayProxyResult => {
@@ -29,5 +29,8 @@ export const createSuccessJsonResponse = (body: object) => {
 }
 
 export const createErrorJsonResponse = (body: string) => {
-  return createApiGatewayResponse({ statusCode: 500, body: JSON.stringify(body) });
+  return createApiGatewayResponse({ 
+    statusCode: 500, 
+    body: JSON.stringify(body) 
+  });
 }
