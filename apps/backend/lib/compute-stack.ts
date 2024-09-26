@@ -10,17 +10,34 @@ interface ComputeStackProps extends cdk.StackProps {
   translationsTable: dynamodb.TableV2;
 }
 
+
 export class ComputeStack extends cdk.Stack {
   public readonly translateLambda: lambdaNodejs.NodejsFunction;
   public readonly getTranslationsLambda: lambdaNodejs.NodejsFunction;
 
   constructor(scope: Construct, id: string, props: ComputeStackProps) {
     super(scope, id, props);
-
-    // Lambda functions
+        
     this.translateLambda = this._createTranslateToLanguageLambda('translate', props);
     this.getTranslationsLambda = this._createGetTranslationsLambda('getTranslations', props);
   }
+
+  private _createLambdaLayer(layerName: string): lambda.LayerVersion {
+    const layerPath = this._getLambdaLayerPath(layerName);
+
+    return new lambda.LayerVersion(
+      this,
+      `${layerName}LambdaLayer`,
+      {
+        code: lambda.AssetCode.fromAsset(layerPath),
+        description: `${layerName} Lambda Layer`,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        compatibleRuntimes: [lambda.Runtime.NODEJS_20_X],
+      }
+    );
+  }
+
+
 
   private _createGetTranslationsLambda(
     lambdaName: string,
@@ -44,11 +61,13 @@ export class ComputeStack extends cdk.Stack {
     return getTranslationsLambda;
   } 
 
+
   private _createTranslateToLanguageLambda(
     lambdaName: string,
     props: ComputeStackProps,
   ): lambdaNodejs.NodejsFunction {
 
+    const utilsLambdaLayer = this._createLambdaLayer('utils');
 
     const translationLambda = new lambdaNodejs.NodejsFunction(
       this,
@@ -66,10 +85,19 @@ export class ComputeStack extends cdk.Stack {
           TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
           TRANSLATIONS_PARTITION_KEY: "requestId",
         },
+        layers: [utilsLambdaLayer],
       }
     );
 
     return translationLambda;
+  }
+
+  private _getLambdaLayerPath(layerName: string): string {
+    const currentDir = __dirname;
+    const projectRoot = path.resolve(currentDir, '..', '..', '..');
+    const layersDirPath = path.join(projectRoot, 'packages', 'lambda-layers');
+
+    return path.resolve(layersDirPath, layerName);
   }
 
   private _getLambdaPath(lambdaName: string): string {
