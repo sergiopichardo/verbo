@@ -1,0 +1,15 @@
+{
+    "name": "@verbo/translation-services",
+    "version": "1.0.0",
+    "main": "./nodejs/translation-services/index.js",
+    "types": "./nodejs/translation-services/index.d.ts",
+    "private": true,
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc --watch"
+    },
+    "devDependencies": {
+        "@types/aws-lambda": "^8.10.145",
+        "@types/node": "^22.7.3"
+    }
+}

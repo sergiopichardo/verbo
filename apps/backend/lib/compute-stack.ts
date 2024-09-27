@@ -17,10 +17,16 @@ export class ComputeStack extends cdk.Stack {
 
   constructor(scope: Construct, id: string, props: ComputeStackProps) {
     super(scope, id, props);
-        
-    this.translateLambda = this._createTranslateToLanguageLambda('translate', props);
-    this.getTranslationsLambda = this._createGetTranslationsLambda('getTranslations', props);
+
+    // layers 
+    const translationServicesLambdaLayer = this._createLambdaLayer('translation-services');
+    const utilsLambdaLayer = this._createLambdaLayer('utils');
+
+    // lambdas
+    this.translateLambda = this._createTranslateToLanguageLambda('translate', props, [translationServicesLambdaLayer, utilsLambdaLayer]);
+    this.getTranslationsLambda = this._createGetTranslationsLambda('get-translations', props, [translationServicesLambdaLayer, utilsLambdaLayer]);
   }
+
 
   private _createLambdaLayer(layerName: string): lambda.LayerVersion {
     const layerPath = this._getLambdaLayerPath(layerName);
@@ -42,7 +48,10 @@ export class ComputeStack extends cdk.Stack {
   private _createGetTranslationsLambda(
     lambdaName: string,
     props: ComputeStackProps,
+    layers: lambda.LayerVersion[],
   ): lambdaNodejs.NodejsFunction {
+
+    
 
     const getTranslationsLambda = new lambdaNodejs.NodejsFunction(
       this,
@@ -55,6 +64,7 @@ export class ComputeStack extends cdk.Stack {
         environment: {
           TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
         },
+        layers: layers,
       }
     );
 
@@ -65,9 +75,8 @@ export class ComputeStack extends cdk.Stack {
   private _createTranslateToLanguageLambda(
     lambdaName: string,
     props: ComputeStackProps,
+    layers: lambda.LayerVersion[],
   ): lambdaNodejs.NodejsFunction {
-
-    const utilsLambdaLayer = this._createLambdaLayer('utils');
 
     const translationLambda = new lambdaNodejs.NodejsFunction(
       this,
@@ -85,7 +94,7 @@ export class ComputeStack extends cdk.Stack {
           TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
           TRANSLATIONS_PARTITION_KEY: "requestId",
         },
-        layers: [utilsLambdaLayer],
+        layers: layers,
       }
     );
 
@@ -135,7 +144,7 @@ export class ComputeStack extends cdk.Stack {
     
     const policiesMap: Record<string, iam.PolicyStatement[]> = {
       translate: [translationServicePolicy, addTranslationsTablePolicy],
-      getTranslations: [translationServicePolicy, getTranslationsTablePolicy],
+      'get-translations': [translationServicePolicy, getTranslationsTablePolicy],
     }
 
     if (!(lambdaName in policiesMap)) {

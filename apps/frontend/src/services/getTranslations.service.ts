@@ -7,13 +7,13 @@ export const getTranslations = async (): Promise<TranslationDBObject[]> => {
         const response = await fetch(`${baseUrl}/translations`, {
             method: 'GET'
         });
-
+        
         if (!response.ok) {
             const errorBody = await response.text();
             console.error('Error response:', errorBody);
             throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
         }
-
+        
         const data = await response.json();
 
         return data.translations;

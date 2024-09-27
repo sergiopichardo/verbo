@@ -16,19 +16,18 @@ export default function Home() {
     setTranslations(data);
   };
 
-  const handleTranslation = async () => {
-    await fetchTranslations();
-  };
-
   useEffect(() => {
-    fetchTranslations();
+    getTranslations().then((data) => {
+      console.log("page.tsx data:", data);
+      setTranslations(data);
+    });
   }, []);
 
   return (
     <div className="flex min-h-screen flex-col items-center p-24">
       <h1 className="text-4xl font-bold">Verbo</h1>
 
-      <TranslationForm onTranslation={handleTranslation} />
+      <TranslationForm onTranslation={fetchTranslations} />
 
       <hr className="my-8 w-[200px]" />
 

@@ -27,6 +27,9 @@
             "/opt/nodejs/utils": [
                 "./lambda-layers/utils"
             ],
+            "/opt/nodejs/translation-services": [
+                "./lambda-layers/translation-services"
+            ]
         }
     },
     "exclude": [

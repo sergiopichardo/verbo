@@ -7,6 +7,16 @@ interface TranslationsListProps {
 
 export const TranslationsList = ({ translations }: TranslationsListProps) => {
 
+    console.log("translations", translations);
+
+    if (!translations) {
+        return <div>Loading...</div>;
+    }
+
+    if (translations.length === 0) {
+        return <div>No translations yet</div>;
+    }
+
     return (
         <div className="flex flex-col space-y-2">
             <h2 className="text-2xl font-semibold">Translations</h2>

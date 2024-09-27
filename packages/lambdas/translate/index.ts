@@ -11,15 +11,14 @@ import {
   TranslationResponse 
 } from "@verbo/shared-types";
 
-import { saveTranslation, translateText } from "../services";
 
+import { translationService } from "/opt/nodejs/translation-services"
 import { gateway } from '/opt/nodejs/utils';
 
 
-const {
-  TRANSLATIONS_TABLE_NAME, 
-  TRANSLATIONS_PARTITION_KEY
-} = process.env;
+const TRANSLATIONS_TABLE_NAME = process.env.TRANSLATIONS_TABLE_NAME as string;
+const TRANSLATIONS_PARTITION_KEY = process.env.TRANSLATIONS_PARTITION_KEY as string;
+
 
 if (!TRANSLATIONS_TABLE_NAME) {
   throw new Error("Missing required TRANSLATIONS_TABLE_NAME environment variable");
@@ -46,7 +45,7 @@ export const handler: APIGatewayProxyHandler = async (
     
     const { sourceLanguageCode, targetLanguageCode, sourceText } = body;
 
-    const translatedText = await translateText(sourceLanguageCode, targetLanguageCode, sourceText);
+    const translatedText = await translationService.translateText(sourceLanguageCode, targetLanguageCode, sourceText)
 
     const translationResponse: TranslationResponse = {
       timestamp: new Date().toISOString(),
@@ -62,7 +61,7 @@ export const handler: APIGatewayProxyHandler = async (
       timestamp: new Date().toISOString(),
     };
 
-    await saveTranslation(tableObj, TRANSLATIONS_TABLE_NAME);
+    await translationService.saveTranslation(tableObj, TRANSLATIONS_TABLE_NAME);
 
     return gateway.createSuccessJsonResponse(translationResponse);
 
