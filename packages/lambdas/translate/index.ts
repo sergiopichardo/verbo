@@ -13,7 +13,7 @@ import {
 
 
 import { translationService } from "/opt/nodejs/translation-services"
-import { gateway } from '/opt/nodejs/utils';
+import { gateway, exceptions } from '/opt/nodejs/utils';
 
 
 const TRANSLATIONS_TABLE_NAME = process.env.TRANSLATIONS_TABLE_NAME as string;
@@ -21,11 +21,11 @@ const TRANSLATIONS_PARTITION_KEY = process.env.TRANSLATIONS_PARTITION_KEY as str
 
 
 if (!TRANSLATIONS_TABLE_NAME) {
-  throw new Error("Missing required TRANSLATIONS_TABLE_NAME environment variable");
+  throw new exceptions.MissingEnvironmentVariableException("TRANSLATIONS_TABLE_NAME");
 }
 
 if (!TRANSLATIONS_PARTITION_KEY) {
-  throw new Error("Missing required TRANSLATIONS_PARTITION_KEY environment variable");
+  throw new exceptions.MissingEnvironmentVariableException("TRANSLATIONS_PARTITION_KEY");
 }
 
 export const handler: APIGatewayProxyHandler = async (
@@ -34,13 +34,21 @@ export const handler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
     if (!event.body) {
-      throw new Error("No body provided");
+      throw new exceptions.MissingRequestBodyException();
     }
 
     const body = JSON.parse(event.body) as TranslationRequest;
     
-    if (!body.sourceLanguageCode || !body.targetLanguageCode || !body.sourceText) {
-      throw new Error("Missing required properties in the request body");
+    if (!body.sourceLanguageCode) {
+      throw new exceptions.MissingParametersException("sourceLanguageCode is missing");
+    }
+
+    if (!body.targetLanguageCode) {
+      throw new exceptions.MissingParametersException("targetLanguageCode is missing");
+    }
+
+    if (!body.sourceText) {
+      throw new exceptions.MissingParametersException("sourceText is missing");
     }
     
     const { sourceLanguageCode, targetLanguageCode, sourceText } = body;

@@ -78,6 +78,10 @@ export class ComputeStack extends cdk.Stack {
     layers: lambda.LayerVersion[],
   ): lambdaNodejs.NodejsFunction {
 
+    if (!props.translationsTable) {
+      throw new Error("Missing required translations table");
+    }
+
     const translationLambda = new lambdaNodejs.NodejsFunction(
       this,
       lambdaName,
