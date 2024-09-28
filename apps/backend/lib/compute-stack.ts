@@ -19,12 +19,20 @@ export class ComputeStack extends cdk.Stack {
     super(scope, id, props);
 
     // layers 
-    const translationServicesLambdaLayer = this._createLambdaLayer('translation-services');
     const utilsLambdaLayer = this._createLambdaLayer('utils');
 
     // lambdas
-    this.translateLambda = this._createTranslateToLanguageLambda('translate', props, [translationServicesLambdaLayer, utilsLambdaLayer]);
-    this.getTranslationsLambda = this._createGetTranslationsLambda('get-translations', props, [translationServicesLambdaLayer, utilsLambdaLayer]);
+    this.translateLambda = this._createTranslateToLanguageLambda(
+      'create-translation', 
+      props, 
+      [utilsLambdaLayer]
+    );
+    
+    this.getTranslationsLambda = this._createGetTranslationsLambda(
+      'get-translations', 
+      props, 
+      [utilsLambdaLayer]
+    );
   }
 
 
@@ -50,8 +58,6 @@ export class ComputeStack extends cdk.Stack {
     props: ComputeStackProps,
     layers: lambda.LayerVersion[],
   ): lambdaNodejs.NodejsFunction {
-
-    
 
     const getTranslationsLambda = new lambdaNodejs.NodejsFunction(
       this,
@@ -90,10 +96,10 @@ export class ComputeStack extends cdk.Stack {
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: "handler",
         initialPolicy: this._getPolicies(lambdaName, props),
-        bundling: {
-          externalModules: ["@aws-sdk/*"],
-          nodeModules: ["@aws-sdk/client-translate"],
-        },
+        // bundling: {
+        //   externalModules: ["@aws-sdk/*"],
+        //   nodeModules: ["@aws-sdk/client-translate"],
+        // },
         environment: {
           TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
           TRANSLATIONS_PARTITION_KEY: "requestId",
@@ -147,8 +153,8 @@ export class ComputeStack extends cdk.Stack {
     });
     
     const policiesMap: Record<string, iam.PolicyStatement[]> = {
-      translate: [translationServicePolicy, addTranslationsTablePolicy],
-      'get-translations': [translationServicePolicy, getTranslationsTablePolicy],
+      'create-translation': [translationServicePolicy, addTranslationsTablePolicy],
+      'get-translations': [getTranslationsTablePolicy],
     }
 
     if (!(lambdaName in policiesMap)) {

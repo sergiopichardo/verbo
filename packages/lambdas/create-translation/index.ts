@@ -8,17 +8,21 @@ import {
 import { 
   TranslationDBObject,
   TranslationRequest, 
-  TranslationResponse 
+  TranslationResponse,
 } from "@verbo/shared-types";
 
-
-import { translationService } from "/opt/nodejs/translation-services"
-import { gateway, exceptions } from '/opt/nodejs/utils';
+import { 
+  gateway, 
+  exceptions, 
+  translationClient,
+  translationTable,
+} from '/opt/nodejs/utils';
 
 
 const TRANSLATIONS_TABLE_NAME = process.env.TRANSLATIONS_TABLE_NAME as string;
-const TRANSLATIONS_PARTITION_KEY = process.env.TRANSLATIONS_PARTITION_KEY as string;
 
+
+const TRANSLATIONS_PARTITION_KEY = process.env.TRANSLATIONS_PARTITION_KEY as string;
 
 if (!TRANSLATIONS_TABLE_NAME) {
   throw new exceptions.MissingEnvironmentVariableException("TRANSLATIONS_TABLE_NAME");
@@ -28,6 +32,12 @@ if (!TRANSLATIONS_PARTITION_KEY) {
   throw new exceptions.MissingEnvironmentVariableException("TRANSLATIONS_PARTITION_KEY");
 }
 
+/**
+ * Create a translation
+ * @param event 
+ * @param context 
+ * @returns a translation JSON response
+ */
 export const handler: APIGatewayProxyHandler = async (
   event: APIGatewayProxyEvent, 
   context: Context,
@@ -53,7 +63,11 @@ export const handler: APIGatewayProxyHandler = async (
     
     const { sourceLanguageCode, targetLanguageCode, sourceText } = body;
 
-    const translatedText = await translationService.translateText(sourceLanguageCode, targetLanguageCode, sourceText)
+    const translatedText = await translationClient.translate({
+      sourceLanguageCode,
+      targetLanguageCode,
+      sourceText
+    });
 
     const translationResponse: TranslationResponse = {
       timestamp: new Date().toISOString(),
@@ -61,15 +75,15 @@ export const handler: APIGatewayProxyHandler = async (
     };
 
     const tableObj: TranslationDBObject = {
-      requestId: context.awsRequestId, // alternatively we could use randomUUID() from node:crypto built-in module
-      sourceLanguageCode: sourceLanguageCode,
-      targetLanguageCode: targetLanguageCode,
-      sourceText: sourceText,
+      requestId: context.awsRequestId,
+      sourceLanguageCode,
+      targetLanguageCode,
+      sourceText,
       targetText: translatedText,
       timestamp: new Date().toISOString(),
     };
 
-    await translationService.saveTranslation(tableObj, TRANSLATIONS_TABLE_NAME);
+    await translationTable.saveTranslation(tableObj, TRANSLATIONS_TABLE_NAME);
 
     return gateway.createSuccessJsonResponse(translationResponse);
 
@@ -78,7 +92,10 @@ export const handler: APIGatewayProxyHandler = async (
       if (error.name === "UnsupportedLanguagePairException") {
         return gateway.createErrorJsonResponse("Unsupported language pair");
       }
-    } 
+      console.error('Error in handler:', error.message);
+    } else {
+      console.error('Unknown error in handler:', error);
+    }
     
     return gateway.createErrorJsonResponse("Unknown error");
   }

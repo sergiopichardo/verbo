@@ -1,11 +1,14 @@
 {
   "name": "@verbo/utils",
   "version": "1.0.0",
-  "main" : "./nodejs/utils/index.js",
+  "main": "./nodejs/utils/index.js",
   "types": "./nodejs/utils/index.d.ts",
   "private": true,
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "@aws-sdk/client-translate": "^3.658.1"
   }
 }

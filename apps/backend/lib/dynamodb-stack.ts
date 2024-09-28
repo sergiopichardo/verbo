@@ -19,12 +19,19 @@ export class DynamoDBStack extends cdk.Stack {
   }
 
   private _createTranslationsTable(): dynamodb.TableV2 {
-    return new dynamodb.TableV2(this, `TranslationsTable`, {
+    const _table = new dynamodb.TableV2(this, `TranslationsTable`, {
         partitionKey: { 
             name: 'requestId', 
             type: dynamodb.AttributeType.STRING 
         },
         removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
+
+    new cdk.CfnOutput(this, 'TranslationsTableName', {
+        value: _table.tableName,
+        exportName: 'translationsTableName'
+    });
+
+    return _table;
   }
 }

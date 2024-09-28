@@ -7,7 +7,7 @@ import {
     TranslationDBObject
 } from "@verbo/shared-types";
 
-import { translationService } from "/opt/nodejs/translation-services"
+import { translationTable } from "/opt/nodejs/utils"
 import { gateway } from "/opt/nodejs/utils"; 
 
 export const handler: APIGatewayProxyHandler = async (): Promise<APIGatewayProxyResult> => {
@@ -15,7 +15,7 @@ export const handler: APIGatewayProxyHandler = async (): Promise<APIGatewayProxy
 
         const tableName = process.env.TRANSLATIONS_TABLE_NAME as string;
 
-        const translations = await translationService.getTranslations(tableName) as TranslationDBObject[];
+        const translations = await translationTable.getTranslations(tableName) as TranslationDBObject[];
 
         return gateway.createSuccessJsonResponse({ translations });
 
