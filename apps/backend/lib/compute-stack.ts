@@ -96,9 +96,13 @@ export class ComputeStack extends cdk.Stack {
         runtime: lambda.Runtime.NODEJS_20_X,
         handler: "handler",
         initialPolicy: this._getPolicies(lambdaName, props),
+        // this is commented out because I'll do this in a cleaner way later on
         // bundling: {
-        //   externalModules: ["@aws-sdk/*"],
-        //   nodeModules: ["@aws-sdk/client-translate"],
+          // Important: We're specifying with this lambda layer path that the lambda layer code are external modules 
+          // so that the bundler doesn't try to bundle them into the lambda. Otherwise, the lambda layer code will be 
+          // duplicated in each lambda function.
+          // these reduces the size of the lambda function and speeds up the lambda function execution.
+          // externalModules: ["/opt/nodejs/utils"],
         // },
         environment: {
           TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
