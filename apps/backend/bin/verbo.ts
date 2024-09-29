@@ -7,6 +7,9 @@ import { ApiStack } from "../lib/api-stack";
 import { DynamoDBStack } from "../lib/dynamodb-stack";
 import { ComputeStack } from "../lib/compute-stack";
 import { StaticWebsiteHostingStack } from "../lib/static-website-hosting";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const appName = "Verbo"
 
@@ -26,5 +29,11 @@ new ApiStack(app, `${appName}ApiStack`, {
 });
 
 new StaticWebsiteHostingStack(app, `${appName}StaticWebsiteHostingStack`, {
-  frontendBuildPath: path.join(__dirname, "../../frontend/dist")
+  domainName: process.env.DOMAIN as string,
+  subdomain: process.env.SUBDOMAIN as string,
+  frontendBuildPath: path.join(__dirname, "../../frontend/dist"),
+  env: {
+    account: process.env.AWS_ACCOUNT as string,
+    region: process.env.AWS_REGION as string,
+  }
 });
