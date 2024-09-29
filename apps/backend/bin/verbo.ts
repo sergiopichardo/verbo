@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 import "source-map-support/register";
+import path from "path";
+
 import * as cdk from "aws-cdk-lib";
 import { ApiStack } from "../lib/api-stack";
 import { DynamoDBStack } from "../lib/dynamodb-stack";
 import { ComputeStack } from "../lib/compute-stack";
+import { StaticWebsiteHostingStack } from "../lib/static-website-hosting";
 
 const appName = "Verbo"
 
@@ -20,4 +23,8 @@ new ApiStack(app, `${appName}ApiStack`, {
   translationsTable: dynamodbStack.translationsTable,
   translateLambda: computeStack.translateLambda,
   getTranslationsLambda: computeStack.getTranslationsLambda,
+});
+
+new StaticWebsiteHostingStack(app, `${appName}StaticWebsiteHostingStack`, {
+  frontendBuildPath: path.join(__dirname, "../../frontend/dist")
 });
