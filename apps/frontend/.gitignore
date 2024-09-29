@@ -34,3 +34,5 @@ src/config/backendOutputs.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+dist
