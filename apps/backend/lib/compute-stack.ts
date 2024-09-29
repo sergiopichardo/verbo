@@ -137,28 +137,35 @@ export class ComputeStack extends cdk.Stack {
 
   private _getPolicies(lambdaName: string, props: ComputeStackProps): iam.PolicyStatement[] {
     // Policies 
-    const translationServicePolicy = new iam.PolicyStatement({
-      actions: ["translate:TranslateText"],
-      resources: ["*"],
-    });
+    const policies = {
+      translationService: new iam.PolicyStatement({
+        actions: ["translate:TranslateText"],
+        resources: ["*"],
+      }),
 
-    const getTranslationsTablePolicy = new iam.PolicyStatement({
-      actions: [
-        "dynamodb:Scan",
-      ],
-      resources: [props.translationsTable.tableArn],
-    });
+      getTranslationsTable: new iam.PolicyStatement({
+        actions: [
+          "dynamodb:Scan",
+        ],
+        resources: [props.translationsTable.tableArn],
+      }),
 
-    const addTranslationsTablePolicy = new iam.PolicyStatement({
-      actions: [
-      "dynamodb:PutItem",
-      ],
-      resources: [props.translationsTable.tableArn],
-    });
+      addTranslationsTable: new iam.PolicyStatement({
+        actions: [
+          "dynamodb:PutItem",
+        ],
+        resources: [props.translationsTable.tableArn],
+      }),
+    };
     
     const policiesMap: Record<string, iam.PolicyStatement[]> = {
-      'create-translation': [translationServicePolicy, addTranslationsTablePolicy],
-      'get-translations': [getTranslationsTablePolicy],
+      'create-translation': [
+        policies.translationService,
+        policies.addTranslationsTable
+      ],
+      'get-translations': [
+        policies.getTranslationsTable
+      ],
     }
 
     if (!(lambdaName in policiesMap)) {
