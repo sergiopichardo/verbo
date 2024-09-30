@@ -18,7 +18,6 @@ export default function Home() {
 
   useEffect(() => {
     getTranslations().then((data) => {
-      console.log("page.tsx data:", data);
       setTranslations(data);
     });
   }, []);

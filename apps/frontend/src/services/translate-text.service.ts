@@ -1,3 +1,4 @@
+import { findNestedProperty } from '@/lib/find-nested-property';
 import backendOutputs from '../config/backendOutputs.json';
 
 import { TranslationRequest, TranslationResponse } from "@verbo/shared-types";
@@ -8,10 +9,10 @@ type TranslateTextInput = {
     inputText: string;
 }
 
-export const translateText = async ({ 
-    inputLanguage, 
-    outputLanguage, 
-    inputText 
+export const translateText = async ({
+    inputLanguage,
+    outputLanguage,
+    inputText
 }: TranslateTextInput): Promise<TranslationResponse> => {
 
     const translationRequest: TranslationRequest = {
@@ -20,7 +21,7 @@ export const translateText = async ({
         sourceText: inputText
     };
 
-    const baseUrl = backendOutputs.VerboApiStack.restApiUrl
+    const baseUrl = findNestedProperty(backendOutputs, 'restApiUrl');
 
     try {
         const response = await fetch(`${baseUrl}/translations`, {
@@ -39,7 +40,7 @@ export const translateText = async ({
 
         const translationResponse: TranslationResponse = await response.json();
         return translationResponse;
-        
+
     } catch (error) {
         console.error("Fetch error:", error);
         throw error;

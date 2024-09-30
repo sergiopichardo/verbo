@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "./ui/input";
 import { translateText } from "@/services/translate-text.service";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 
 type TranslationFormProps = {
@@ -32,6 +33,9 @@ type TranslationFormProps = {
 export default function TranslationForm({
   onTranslation,
 }: TranslationFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+
   const form = useForm<TTranslateForm>({
     resolver: zodResolver(translateFormSchema),
     defaultValues: {
@@ -47,6 +51,7 @@ export default function TranslationForm({
     }
 
     try {
+      setIsLoading(true);
       const translation = await translateText({
         inputText: data.inputText,
         inputLanguage: data.inputLanguage,
@@ -66,6 +71,7 @@ export default function TranslationForm({
         });
       }
     } finally {
+      setIsLoading(false);
       form.reset({
         inputText: "",
         inputLanguage: "",
@@ -139,8 +145,8 @@ export default function TranslationForm({
           )}
         />
 
-        <Button type="submit" className="mt-4">
-          Translate
+        <Button type="submit" className="mt-4" disabled={isLoading}>
+          {isLoading ? "Translating..." : "Translate"}
         </Button>
       </form>
     </Form>

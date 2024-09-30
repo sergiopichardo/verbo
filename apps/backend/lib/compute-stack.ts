@@ -8,6 +8,7 @@ import * as path from "path";
 
 interface ComputeStackProps extends cdk.StackProps {
   translationsTable: dynamodb.TableV2;
+  appName: string;
 }
 
 
@@ -23,14 +24,14 @@ export class ComputeStack extends cdk.Stack {
 
     // lambdas
     this.translateLambda = this._createTranslateToLanguageLambda(
-      'create-translation', 
-      props, 
+      'create-translation',
+      props,
       [utilsLambdaLayer]
     );
-    
+
     this.getTranslationsLambda = this._createGetTranslationsLambda(
-      'get-translations', 
-      props, 
+      'get-translations',
+      props,
       [utilsLambdaLayer]
     );
   }
@@ -75,7 +76,7 @@ export class ComputeStack extends cdk.Stack {
     );
 
     return getTranslationsLambda;
-  } 
+  }
 
 
   private _createTranslateToLanguageLambda(
@@ -98,11 +99,11 @@ export class ComputeStack extends cdk.Stack {
         initialPolicy: this._getPolicies(lambdaName, props),
         // this is commented out because I'll do this in a cleaner way later on
         // bundling: {
-          // Important: We're specifying with this lambda layer path that the lambda layer code are external modules 
-          // so that the bundler doesn't try to bundle them into the lambda. Otherwise, the lambda layer code will be 
-          // duplicated in each lambda function.
-          // these reduces the size of the lambda function and speeds up the lambda function execution.
-          // externalModules: ["/opt/nodejs/utils"],
+        // Important: We're specifying with this lambda layer path that the lambda layer code are external modules 
+        // so that the bundler doesn't try to bundle them into the lambda. Otherwise, the lambda layer code will be 
+        // duplicated in each lambda function.
+        // these reduces the size of the lambda function and speeds up the lambda function execution.
+        // externalModules: ["/opt/nodejs/utils"],
         // },
         environment: {
           TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
@@ -157,7 +158,7 @@ export class ComputeStack extends cdk.Stack {
         resources: [props.translationsTable.tableArn],
       }),
     };
-    
+
     const policiesMap: Record<string, iam.PolicyStatement[]> = {
       'create-translation': [
         policies.translationService,

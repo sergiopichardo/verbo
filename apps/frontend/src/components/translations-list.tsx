@@ -7,8 +7,6 @@ interface TranslationsListProps {
 
 export const TranslationsList = ({ translations }: TranslationsListProps) => {
 
-    console.log("translations", translations);
-
     if (!translations) {
         return <div>Loading...</div>;
     }
