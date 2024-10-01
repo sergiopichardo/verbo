@@ -5,13 +5,13 @@ import path from "path";
 import * as cdk from "aws-cdk-lib";
 import dotenv from "dotenv";
 
-import { RootStack } from "../src/stacks/root-stack";
+import { RootStack } from "./stacks/root-stack";
 
 dotenv.config();
 
 const app = new cdk.App();
 
-new RootStack(app, `VerboStack`, {
+new RootStack(app, 'Verbo', {
   env: {
     account: process.env.AWS_ACCOUNT as string,
     region: process.env.AWS_REGION as string,

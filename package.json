@@ -9,7 +9,6 @@
     "utils-layer:build": "npm run build --workspace=@verbo/utils",
     "utils-layer:watch": "npm run watch --workspace=@verbo/utils",
     "deploy": "npm run build --workspace=@verbo/frontend && npm run deploy --workspace=@verbo/backend"
-
   },
   "workspaces": [
     "apps/*",

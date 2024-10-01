@@ -1,9 +1,9 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
-import { ApiStack } from "../lib/api-stack";
-import { DynamoDBStack } from "../lib/dynamodb-stack";
-import { ComputeStack } from "../lib/compute-stack";
+import { RestApiStack } from "./api-stack";
+import { DynamoDBStack } from "./dynamodb-stack";
+import { ComputeStack } from "./compute-stack";
 import { StaticWebsiteHostingStack } from "./static-website-hosting";
 import { HostedZoneStack } from "./hosted-zone-stack";
 import { CertificateStack } from "./certificate-stack";
@@ -53,7 +53,7 @@ export class RootStack extends cdk.Stack {
             env: props.env,
         });
 
-        const apiStack = new ApiStack(this, `${props.appName}ApiStack`, {
+        const apiStack = new RestApiStack(this, `${props.appName}ApiStack`, {
             translationsTable: dynamodbStack.translationsTable,
             translateLambda: computeStack.translateLambda,
             getTranslationsLambda: computeStack.getTranslationsLambda,

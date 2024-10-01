@@ -118,7 +118,7 @@ export class ComputeStack extends cdk.Stack {
 
   private _getLambdaLayerPath(layerName: string): string {
     const currentDir = __dirname;
-    const projectRoot = path.resolve(currentDir, '..', '..', '..');
+    const projectRoot = path.resolve(currentDir, '..', '..', '..', '..');
     const layersDirPath = path.join(projectRoot, 'packages', 'lambda-layers');
 
     return path.resolve(layersDirPath, layerName);
@@ -126,7 +126,7 @@ export class ComputeStack extends cdk.Stack {
 
   private _getLambdaPath(lambdaName: string): string {
     const currentDir = __dirname;
-    const projectRoot = path.resolve(currentDir, '..', '..', '..');
+    const projectRoot = path.resolve(currentDir, '..', '..', '..', '..');
     const lambdasDirPath = path.join(projectRoot, 'packages', 'lambdas');
 
     return path.resolve(
