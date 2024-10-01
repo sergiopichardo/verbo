@@ -7,6 +7,7 @@ import { HostedZoneStack } from "./hosted-zone-stack";
 import { CertificateStack } from "./certificate-stack";
 import { TranslationServiceConstruct } from "../constructs/translation-service-construct";
 import { StaticWebsiteDeploymentConstruct } from "../constructs/static-website-deployment-construct";
+import { DnsRecordStack } from "./dns-record-stack";
 import { DynamodbStack } from "./dynamodb-stack";
 
 interface RootStackProps extends cdk.StackProps {
@@ -31,7 +32,7 @@ export class RootStack extends cdk.Stack {
         });
 
         // create DNS stack 
-        const dnsStack = new HostedZoneStack(this, `${props.appName}DnsStack`, {
+        const hostedZoneStack = new HostedZoneStack(this, `${props.appName}HostedZoneStack`, {
             domainName: props.domainName,
             env: props.env,
         });
@@ -39,14 +40,13 @@ export class RootStack extends cdk.Stack {
         // create Certificate stack
         const certificateStack = new CertificateStack(this, `${props.appName}CertificateStack`, {
             domainName: props.domainName,
-            hostedZone: dnsStack.hostedZone,
+            hostedZone: hostedZoneStack.hostedZone,
             subdomain: props.subdomain,
             apiSubDomain: props.apiSubDomain,
             env: props.env,
         });
 
-        // auth stack (will go here) 
-        // it will consume the users table 
+        // auth stack (will go here) --> it will consume the users table 
 
         const apiStack = new RestApiStack(this, `${props.appName}ApiStack`, {
             domainName: props.domainName,
@@ -55,15 +55,22 @@ export class RootStack extends cdk.Stack {
             env: props.env,
         });
 
-        const staticWebsiteHostingStack = new StaticWebsiteHostingStack(this, `${props.appName}StaticWebsiteHostingStack`, {
+        const hostingStack = new StaticWebsiteHostingStack(this, `${props.appName}StaticWebsiteHostingStack`, {
             domainName: props.domainName,
             subdomain: props.subdomain,
             restApi: apiStack.restApi,
             frontendBuildPath: props.frontendBuildPath,
             cloudFrontFunctionFilePath: props.cloudFrontFunctionFilePath,
             apiSubDomain: props.apiSubDomain,
-            hostedZone: dnsStack.hostedZone,
             certificate: certificateStack.certificate,
+            env: props.env,
+        });
+
+        new DnsRecordStack(this, `${props.appName}DnsRecordStack`, {
+            domainName: props.domainName,
+            hostedZone: hostedZoneStack.hostedZone,
+            restApi: apiStack.restApi,
+            distribution: hostingStack.distribution,
             env: props.env,
         });
 
@@ -83,8 +90,10 @@ export class RootStack extends cdk.Stack {
             domainName: props.domainName,
             subdomain: props.subdomain,
             frontendBuildPath: props.frontendBuildPath,
-            distribution: staticWebsiteHostingStack.distribution,
-            destinationBucket: staticWebsiteHostingStack.originBucket,
+            distribution: hostingStack.distribution,
+            destinationBucket: hostingStack.originBucket,
         });
+
+
     }
 }

@@ -19,14 +19,14 @@ interface TranslationServiceProps {
 }
 
 export class TranslationServiceConstruct extends Construct {
-    private translationsTable: dynamodb.TableV2;
 
     constructor(scope: Construct, id: string, props: TranslationServiceProps) {
         super(scope, id);
 
         // Lambdas 
-        const translationsLambda = this._createTranslationsLambda(props);
-        const getTranslationsLambda = this._createGetTranslationsLambda(props);
+        const utilsLambdaLayer = this._createLambdaLayer("utils");
+        const translationsLambda = this._createTranslationsLambda(props, [utilsLambdaLayer]);
+        const getTranslationsLambda = this._createGetTranslationsLambda(props, [utilsLambdaLayer]);
 
         // API 
         const translationResource = this._createTranslationResource(props.restApi)
@@ -40,16 +40,14 @@ export class TranslationServiceConstruct extends Construct {
         })
     }
 
-    private _createGetTranslationsLambda(props: TranslationServiceProps): lambdaNodejs.NodejsFunction {
+    private _createGetTranslationsLambda(props: TranslationServiceProps, layers: lambda.LayerVersion[]): lambdaNodejs.NodejsFunction {
 
         const getTranslationsTablePolicy = new iam.PolicyStatement({
             actions: [
                 "dynamodb:Scan",
             ],
-            resources: [this.translationsTable.tableArn],
+            resources: [props.translationsTable.tableArn],
         });
-
-        const lambdaLayer = this._createLambdaLayer("utils");
 
         const _lambda = new lambdaNodejs.NodejsFunction(
             this,
@@ -64,19 +62,19 @@ export class TranslationServiceConstruct extends Construct {
                 environment: {
                     TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
                 },
-                layers: [lambdaLayer],
+                layers: layers,
             }
         );
 
         return _lambda;
     }
 
-    private _createTranslationsLambda(props: TranslationServiceProps) {
+    private _createTranslationsLambda(props: TranslationServiceProps, layers: lambda.LayerVersion[]): lambdaNodejs.NodejsFunction {
         const getTranslationsTablePolicy = new iam.PolicyStatement({
             actions: [
                 "dynamodb:PutItem",
             ],
-            resources: [this.translationsTable.tableArn],
+            resources: [props.translationsTable.tableArn],
         });
 
         const translateTextPolicy = new iam.PolicyStatement({
@@ -85,8 +83,6 @@ export class TranslationServiceConstruct extends Construct {
             ],
             resources: ["*"],
         });
-
-        const lambdaLayer = this._createLambdaLayer("utils");
 
         const _lambda = new lambdaNodejs.NodejsFunction(
             this,
@@ -111,7 +107,7 @@ export class TranslationServiceConstruct extends Construct {
                     TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
                     TRANSLATIONS_PARTITION_KEY: "requestId",
                 },
-                layers: [lambdaLayer],
+                layers: layers,
             }
         );
 
@@ -128,17 +124,6 @@ export class TranslationServiceConstruct extends Construct {
         lambda: lambdaNodejs.NodejsFunction,
     ) {
         resource.addMethod(method, new apigateway.LambdaIntegration(lambda))
-    }
-
-    private _createTranslationsTable(props: TranslationServiceProps): dynamodb.TableV2 {
-        const _table = new dynamodb.TableV2(this, `${props.appName}TranslationsTable`, {
-            partitionKey: {
-                name: 'requestId',
-                type: dynamodb.AttributeType.STRING
-            },
-            removalPolicy: cdk.RemovalPolicy.DESTROY,
-        });
-        return _table;
     }
 
     private _createOutput(output: { exportName: string, value: string }) {

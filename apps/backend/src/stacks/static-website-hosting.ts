@@ -5,9 +5,7 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as cloudfrontOrigins from "aws-cdk-lib/aws-cloudfront-origins";
-import * as s3Deployment from "aws-cdk-lib/aws-s3-deployment";
-import * as route53 from "aws-cdk-lib/aws-route53";
-import * as route53Targets from "aws-cdk-lib/aws-route53-targets";
+
 interface StaticWebsiteHostingStackProps extends cdk.StackProps {
     frontendBuildPath: string;
     domainName: string;
@@ -15,7 +13,6 @@ interface StaticWebsiteHostingStackProps extends cdk.StackProps {
     cloudFrontFunctionFilePath: string;
     apiSubDomain: string;
     restApi: apigateway.RestApi;
-    hostedZone: route53.IHostedZone;
     certificate: acm.Certificate;
 }
 
@@ -31,7 +28,6 @@ export class StaticWebsiteHostingStack extends cdk.Stack {
         const certificate = props.certificate;
         const cloudFrontFunction = this._createCloudFrontFunction(props);
         this.distribution = this._createDistribution(this.originBucket, certificate, cloudFrontFunction, props);
-        this._createRecords(props);
     }
 
     private _createCloudFrontFunction(props: StaticWebsiteHostingStackProps): cloudfront.Function {
@@ -102,27 +98,5 @@ export class StaticWebsiteHostingStack extends cdk.Stack {
         });
 
         return distribution;
-    }
-
-    private _createRecords(props: StaticWebsiteHostingStackProps) {
-        // Create A record for the main domain
-        new route53.ARecord(this, "MainDomainRecord", {
-            zone: props.hostedZone,
-            target: route53.RecordTarget.fromAlias(new route53Targets.CloudFrontTarget(this.distribution)),
-        });
-
-        // Create A record for the www subdomain
-        new route53.ARecord(this, "WwwSubdomainRecord", {
-            zone: props.hostedZone,
-            recordName: `www.${props.domainName}`,
-            target: route53.RecordTarget.fromAlias(new route53Targets.CloudFrontTarget(this.distribution)),
-        });
-
-        // Create A record for the API subdomain
-        new route53.ARecord(this, "ApiSubdomainRecord", {
-            zone: props.hostedZone,
-            recordName: `api.${props.domainName}`,
-            target: route53.RecordTarget.fromAlias(new route53Targets.ApiGateway(props.restApi)),
-        });
     }
 }
