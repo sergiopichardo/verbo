@@ -2,12 +2,12 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
 import { RestApiStack } from "./api-stack";
-import { DynamoDBStack } from "./dynamodb-stack";
-import { ComputeStack } from "./compute-stack";
 import { StaticWebsiteHostingStack } from "./static-website-hosting";
 import { HostedZoneStack } from "./hosted-zone-stack";
 import { CertificateStack } from "./certificate-stack";
-import { DnsRecordsStack } from "./dns-records-stack";
+import { TranslationServiceConstruct } from "../constructs/translation-service-construct";
+import { StaticWebsiteDeploymentConstruct } from "../constructs/static-website-deployment-construct";
+import { DynamodbStack } from "./dynamodb-stack";
 
 interface RootStackProps extends cdk.StackProps {
     appName: string;
@@ -25,6 +25,11 @@ export class RootStack extends cdk.Stack {
 
         // email stack (will go here)
 
+        const dynamodbStack = new DynamodbStack(this, `${props.appName}DynamodbStack`, {
+            appName: props.appName,
+            env: props.env,
+        });
+
         // create DNS stack 
         const dnsStack = new HostedZoneStack(this, `${props.appName}DnsStack`, {
             domainName: props.domainName,
@@ -40,23 +45,10 @@ export class RootStack extends cdk.Stack {
             env: props.env,
         });
 
-        const dynamodbStack = new DynamoDBStack(this, `${props.appName}DynamoDBStack`, {
-            appName: props.appName,
-            env: props.env,
-        });
-
-        // auth stack (will go here)
-
-        const computeStack = new ComputeStack(this, `${props.appName}ComputeStack`, {
-            translationsTable: dynamodbStack.translationsTable,
-            appName: props.appName,
-            env: props.env,
-        });
+        // auth stack (will go here) 
+        // it will consume the users table 
 
         const apiStack = new RestApiStack(this, `${props.appName}ApiStack`, {
-            translationsTable: dynamodbStack.translationsTable,
-            translateLambda: computeStack.translateLambda,
-            getTranslationsLambda: computeStack.getTranslationsLambda,
             domainName: props.domainName,
             apiSubDomain: props.apiSubDomain,
             certificate: certificateStack.certificate,
@@ -75,13 +67,24 @@ export class RootStack extends cdk.Stack {
             env: props.env,
         });
 
-        // DNS records stack
-        new DnsRecordsStack(this, `${props.appName}DnsRecordsStack`, {
-            domainName: props.domainName,
-            distribution: staticWebsiteHostingStack.distribution,
+        /**
+         * Constructs
+         */
+
+        new TranslationServiceConstruct(this, `${props.appName}TranslationServiceConstruct`, {
+            appName: props.appName,
             restApi: apiStack.restApi,
-            hostedZone: dnsStack.hostedZone,
-            env: props.env,
+            domainName: props.domainName,
+            apiSubDomain: props.apiSubDomain,
+            translationsTable: dynamodbStack.translationsTable,
+        });
+
+        new StaticWebsiteDeploymentConstruct(this, `${props.appName}StaticWebsiteDeploymentStack`, {
+            domainName: props.domainName,
+            subdomain: props.subdomain,
+            frontendBuildPath: props.frontendBuildPath,
+            distribution: staticWebsiteHostingStack.distribution,
+            destinationBucket: staticWebsiteHostingStack.originBucket,
         });
     }
 }

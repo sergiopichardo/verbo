@@ -20,7 +20,7 @@ export class CertificateStack extends cdk.Stack {
             domainName: props.domainName,
             subjectAlternativeNames: [
                 `${props.subdomain}.${props.domainName}`, // e.g. app.verbo.com
-                `*.${props.domainName}`, // e.g. *.verbo.com
+                // `*.${props.domainName}`, // e.g. *.verbo.com
                 `${props.apiSubDomain}.${props.domainName}`, // e.g. api.verbo.com
             ],
             validation: acm.CertificateValidation.fromDns(props.hostedZone),
