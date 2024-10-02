@@ -47,10 +47,8 @@ export class TranslationServiceConstruct extends Construct {
         layers: lambda.ILayerVersion[]
     ): lambdaNodejs.NodejsFunction {
 
-        const lambdaPath = findPath("lambdas/get-translations/index.ts");
-
         return new lambdaNodejs.NodejsFunction(this, "get-translations", {
-            entry: lambdaPath,
+            entry: findPath("lambdas/get-translations/index.ts"),
             handler: "handler",
             layers: layers,
             runtime: lambda.Runtime.NODEJS_20_X,
@@ -85,10 +83,8 @@ export class TranslationServiceConstruct extends Construct {
         layers: lambda.ILayerVersion[]
     ): lambdaNodejs.NodejsFunction {
 
-        const lambdaPath = findPath("lambdas/create-translation/index.ts");
-
         return new lambdaNodejs.NodejsFunction(this, "create-translation", {
-            entry: lambdaPath,
+            entry: findPath("lambdas/create-translation/index.ts"),
             handler: "handler",
             layers: layers,
             runtime: lambda.Runtime.NODEJS_20_X,
