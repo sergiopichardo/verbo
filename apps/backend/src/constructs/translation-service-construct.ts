@@ -7,7 +7,9 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+
 import { type ApiGatewayMethods } from "../stacks/api-stack";
+import { findPath } from "../../helpers/path-finder";
 
 interface TranslationServiceProps {
     restApi: apigateway.RestApi;
@@ -46,7 +48,7 @@ export class TranslationServiceConstruct extends Construct {
             this,
             "get-translations",
             {
-                entry: this._getLambdaPath("get-translations"),
+                entry: findPath("lambdas/get-translations/index.ts"),
                 runtime: lambda.Runtime.NODEJS_20_X,
                 handler: "handler",
                 initialPolicy: [
@@ -81,7 +83,7 @@ export class TranslationServiceConstruct extends Construct {
             this,
             "create-translation",
             {
-                entry: this._getLambdaPath("create-translation"),
+                entry: findPath("lambdas/create-translation/index.ts"),
                 runtime: lambda.Runtime.NODEJS_20_X,
                 handler: "handler",
                 initialPolicy: [
@@ -120,7 +122,7 @@ export class TranslationServiceConstruct extends Construct {
     }
 
     private _createLambdaLayer(layerName: string): lambda.LayerVersion {
-        const layerPath = this._getLambdaLayerPath(layerName);
+        const layerPath = findPath('lambda-layers/utils');
 
         return new lambda.LayerVersion(
             this,
@@ -133,25 +135,4 @@ export class TranslationServiceConstruct extends Construct {
             }
         );
     }
-
-    private _getLambdaLayerPath(layerName: string): string {
-        const currentDir = __dirname;
-        const projectRoot = path.resolve(currentDir, '..', '..', '..', '..');
-        const layersDirPath = path.join(projectRoot, 'packages', 'lambda-layers');
-
-        return path.resolve(layersDirPath, layerName);
-    }
-
-    private _getLambdaPath(lambdaName: string): string {
-        const currentDir = __dirname;
-        const projectRoot = path.resolve(currentDir, '..', '..', '..', '..');
-        const lambdasDirPath = path.join(projectRoot, 'packages', 'lambdas');
-
-        return path.resolve(
-            lambdasDirPath,
-            lambdaName,
-            'index.ts'
-        );
-    }
-
 }

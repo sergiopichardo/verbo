@@ -5,7 +5,7 @@ import * as cdk from "aws-cdk-lib";
 
 import { RootStack } from "./stacks/root-stack";
 import { getConfig } from "../helpers";
-import { findPath } from "../helpers/find-path";
+import { findPath } from "../helpers/path-finder";
 
 const app = new cdk.App();
 
