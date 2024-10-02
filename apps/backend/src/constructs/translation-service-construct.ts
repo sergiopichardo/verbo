@@ -61,6 +61,10 @@ export class TranslationServiceConstruct extends Construct {
             environment: {
                 TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
             },
+            bundling: {
+                minify: true,
+                externalModules: ["/opt/nodejs/utils"], // TODO: change layer name to utils-layer
+            },
         });
     }
 
@@ -101,6 +105,10 @@ export class TranslationServiceConstruct extends Construct {
             environment: {
                 TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
                 TRANSLATIONS_PARTITION_KEY: "requestId",
+            },
+            bundling: {
+                minify: true,
+                externalModules: ["/opt/nodejs/utils"], // TODO: change layer name to utils-layer
             },
         });
     }
