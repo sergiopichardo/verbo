@@ -17,7 +17,7 @@ interface RootStackProps extends cdk.StackProps {
     apiSubDomain: string;
     frontendBuildPath: string;
     cloudFrontFunctionFilePath: string;
-    stageName?: string;
+    stageName: string;
 }
 
 export class RootStack extends cdk.Stack {
@@ -84,6 +84,7 @@ export class RootStack extends cdk.Stack {
             domainName: props.domainName,
             apiSubDomain: props.apiSubDomain,
             translationsTable: dynamodbStack.translationsTable,
+            stageName: props.stageName,
         });
 
         new StaticWebsiteDeploymentConstruct(this, `${props.appName}StaticWebsiteDeploymentStack`, {

@@ -4,5 +4,6 @@ export type IAppTypes = {
     domainName: string;
     apiSubDomain: string;
     webSubDomain: string;
+    stageName: string;
 };
 

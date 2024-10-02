@@ -15,7 +15,8 @@ export const getConfig = (key: keyof IAppTypes) => {
         AWS_REGION,
         DOMAIN,
         API_SUBDOMAIN,
-        WEB_SUBDOMAIN
+        WEB_SUBDOMAIN,
+        STAGE_NAME
     } = process.env;
 
 
@@ -39,12 +40,17 @@ export const getConfig = (key: keyof IAppTypes) => {
         throw new Error('WEB_SUBDOMAIN is not set');
     }
 
+    if (!STAGE_NAME) {
+        throw new Error('STAGE_NAME is not set');
+    }
+
     const configMap: IAppTypes = {
         awsAccountId: AWS_ACCOUNT,
         awsRegion: AWS_REGION,
         domainName: DOMAIN,
         apiSubDomain: API_SUBDOMAIN,
         webSubDomain: WEB_SUBDOMAIN,
+        stageName: STAGE_NAME,
     };
 
     return configMap[key];

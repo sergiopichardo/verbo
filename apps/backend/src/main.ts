@@ -21,4 +21,5 @@ new RootStack(app, 'Verbo', {
   apiSubDomain: getConfig('apiSubDomain'),
   frontendBuildPath: findPath('frontend/dist'),
   cloudFrontFunctionFilePath: findPath('cloudfront-functions/redirect-to-index-html.js'),
+  stageName: getConfig('stageName'),
 });
