@@ -21,7 +21,7 @@ import {
 
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "./ui/input";
-import { translateText } from "@/services/translate-text.service";
+import { translateText } from "@/services/translations/translate-text.service";
 import toast from "react-hot-toast";
 import { useState } from "react";
 

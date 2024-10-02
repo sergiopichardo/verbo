@@ -94,6 +94,15 @@ export class RootStack extends cdk.Stack {
             destinationBucket: hostingStack.originBucket,
         });
 
+        // Outputs
+        new cdk.CfnOutput(this, "staticWebsiteDistributionDomain", {
+            value: `https://${hostingStack.distribution.domainName}`,
+            exportName: "staticWebsiteDistributionDomain",
+        });
 
+        new cdk.CfnOutput(this, "translationsApiBaseUrl", {
+            value: `https://${props.apiSubDomain}.${props.domainName}`,
+            exportName: "translationsApiBaseUrl",
+        });
     }
 }

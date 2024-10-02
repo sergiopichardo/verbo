@@ -1,5 +1,4 @@
-import { findNestedProperty } from '@/lib/find-nested-property';
-import backendOutputs from '../config/backendOutputs.json';
+import backendOutputs from '../../config/backendOutputs.json';
 
 import { TranslationRequest, TranslationResponse } from "@verbo/shared-types";
 
@@ -15,16 +14,16 @@ export const translateText = async ({
     inputText
 }: TranslateTextInput): Promise<TranslationResponse> => {
 
+    const { translationsApiBaseUrl } = backendOutputs;
+
     const translationRequest: TranslationRequest = {
         sourceLanguageCode: inputLanguage,
         targetLanguageCode: outputLanguage,
         sourceText: inputText
     };
 
-    const baseUrl = findNestedProperty(backendOutputs, 'restApiUrl');
-
     try {
-        const response = await fetch(`${baseUrl}/translations`, {
+        const response = await fetch(`${translationsApiBaseUrl}/translations`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

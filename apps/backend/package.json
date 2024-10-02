@@ -9,8 +9,8 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "deploy": "cdk deploy --all --profile default --outputs-file backendOutputs.json --require-approval never",
-    "postdeploy": "cp backendOutputs.json ../frontend/src/config/backendOutputs.json",
+    "deploy": "cdk deploy --all --profile default --outputs-file outputs.json --require-approval never",
+    "postdeploy": "npx ts-node process-cdk-outputs.ts",
     "destroy": "cdk destroy --all --profile default"
   },
   "devDependencies": {
@@ -29,6 +29,7 @@
     "@verbo/shared-types": "^1.0.0",
     "aws-cdk-lib": "2.159.1",
     "aws-lambda": "^1.0.7",
+    "chalk": "^5.3.0",
     "constructs": "^10.0.0",
     "dotenv": "^16.4.5",
     "lodash": "^4.17.21",

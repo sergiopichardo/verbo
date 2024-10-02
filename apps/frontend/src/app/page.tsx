@@ -5,8 +5,7 @@ import { TranslationDBObject } from "@verbo/shared-types";
 
 import TranslationForm from "@/components/translation-form";
 import { TranslationsList } from "@/components/translations-list";
-
-import { getTranslations } from "@/services/getTranslations.service";
+import { getTranslations } from "@/services/translations/get-translations.service";
 
 export default function Home() {
   const [translations, setTranslations] = useState<TranslationDBObject[]>([]);

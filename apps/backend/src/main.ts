@@ -1,25 +1,24 @@
 #!/usr/bin/env node
 import "source-map-support/register";
-import path from "path";
 
 import * as cdk from "aws-cdk-lib";
-import dotenv from "dotenv";
 
 import { RootStack } from "./stacks/root-stack";
-
-dotenv.config();
+import { getConfig } from "../helpers";
+import { findPath } from "../helpers/find-path";
 
 const app = new cdk.App();
 
+
 new RootStack(app, 'Verbo', {
-  env: {
-    account: process.env.AWS_ACCOUNT as string,
-    region: process.env.AWS_REGION as string,
-  },
   appName: "Verbo",
-  domainName: process.env.DOMAIN as string,
-  subdomain: process.env.SUBDOMAIN as string,
-  apiSubDomain: process.env.API_SUBDOMAIN as string,
-  frontendBuildPath: path.join(__dirname, "../../frontend/dist"),
-  cloudFrontFunctionFilePath: path.join(__dirname, "../cloudfront-functions/redirect-to-index-html.js"),
+  env: {
+    account: getConfig('awsAccountId'),
+    region: getConfig('awsRegion'),
+  },
+  domainName: getConfig('domainName'),
+  subdomain: getConfig('webSubDomain'),
+  apiSubDomain: getConfig('apiSubDomain'),
+  frontendBuildPath: findPath('frontend/dist'),
+  cloudFrontFunctionFilePath: findPath('cloudfront-functions/redirect-to-index-html.js'),
 });

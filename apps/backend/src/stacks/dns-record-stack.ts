@@ -18,6 +18,7 @@ export class DnsRecordStack extends cdk.Stack {
 
         new route53.ARecord(this, "MainDomainRecord", {
             zone: props.hostedZone,
+            recordName: props.domainName,
             target: route53.RecordTarget.fromAlias(new route53Targets.CloudFrontTarget(props.distribution)),
         });
 

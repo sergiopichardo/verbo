@@ -92,11 +92,6 @@ export class StaticWebsiteHostingStack extends cdk.Stack {
             certificate,
         });
 
-        new cdk.CfnOutput(this, "StaticWebsiteDistributionDomain", {
-            value: `https://${distribution.domainName}`,
-            exportName: "staticWebsiteDistributionDomain",
-        });
-
         return distribution;
     }
 }

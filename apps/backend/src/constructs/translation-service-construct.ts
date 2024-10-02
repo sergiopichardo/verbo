@@ -8,7 +8,6 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import { type ApiGatewayMethods } from "../stacks/api-stack";
-import { capitalize } from "lodash";
 
 interface TranslationServiceProps {
     restApi: apigateway.RestApi;
@@ -32,12 +31,6 @@ export class TranslationServiceConstruct extends Construct {
         const translationResource = this._createTranslationResource(props.restApi)
         this._createTranslationMethod("POST", translationResource, translationsLambda);
         this._createTranslationMethod("GET", translationResource, getTranslationsLambda);
-
-        // Outputs
-        this._createOutput({
-            exportName: "translationsApiUrl",
-            value: `https://${props.apiSubDomain}.${props.domainName}/translations`
-        })
     }
 
     private _createGetTranslationsLambda(props: TranslationServiceProps, layers: lambda.LayerVersion[]): lambdaNodejs.NodejsFunction {
@@ -124,13 +117,6 @@ export class TranslationServiceConstruct extends Construct {
         lambda: lambdaNodejs.NodejsFunction,
     ) {
         resource.addMethod(method, new apigateway.LambdaIntegration(lambda))
-    }
-
-    private _createOutput(output: { exportName: string, value: string }) {
-        new cdk.CfnOutput(this, capitalize(output.exportName), {
-            value: output.value,
-            exportName: output.exportName,
-        })
     }
 
     private _createLambdaLayer(layerName: string): lambda.LayerVersion {
