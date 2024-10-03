@@ -9,6 +9,7 @@ import { TranslationServiceConstruct } from "../constructs/translation-service-c
 import { StaticWebsiteDeploymentConstruct } from "../constructs/static-website-deployment-construct";
 import { DnsRecordStack } from "./dns-record-stack";
 import { DynamodbStack } from "./dynamodb-stack";
+import { AuthStack } from "./auth-stack";
 
 interface RootStackProps extends cdk.StackProps {
     appName: string;
@@ -47,6 +48,9 @@ export class RootStack extends cdk.Stack {
         });
 
         // auth stack (will go here) --> it will consume the users table 
+        const authStack = new AuthStack(this, `${props.appName}AuthStack`, {
+            appName: props.appName,
+        });
 
         const apiStack = new RestApiStack(this, `${props.appName}ApiStack`, {
             domainName: props.domainName,
@@ -104,6 +108,17 @@ export class RootStack extends cdk.Stack {
         new cdk.CfnOutput(this, "translationsApiBaseUrl", {
             value: `https://${props.apiSubDomain}.${props.domainName}`,
             exportName: "translationsApiBaseUrl",
+        });
+
+        // Cognito Outputs
+        new cdk.CfnOutput(this, "userPoolId", {
+            value: authStack.userPool.userPoolId,
+            exportName: "userPoolId",
+        });
+
+        new cdk.CfnOutput(this, "userPoolClientId", {
+            value: authStack.userPoolClient.userPoolClientId,
+            exportName: "userPoolClientId",
         });
     }
 }

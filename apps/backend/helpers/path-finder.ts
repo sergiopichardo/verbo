@@ -2,120 +2,83 @@ import path from 'path';
 import fs from 'fs';
 
 export class PathFinder {
-    private excludedPaths: string[];
+    private normalizedExcludedPaths: string[];
 
     constructor(private projectRootName: string, excludedPaths: string[] = []) {
-        this.excludedPaths = excludedPaths.map(p => path.normalize(p));
+        this.normalizedExcludedPaths = excludedPaths.map(p => path.normalize(p));
     }
 
-    public find(startDir: string, targetPath: string): string | null {
-        const projectRoot = this.locateProjectRoot(startDir);
-
+    public findTargetPath(startDir: string, targetPath: string): string | null {
+        const projectRoot = this.findProjectRoot(startDir);
         if (!projectRoot) {
             console.log(`Project root '${this.projectRootName}' not found.`);
             return null;
         }
-        return this.searchFromRoot(projectRoot, targetPath);
+        return this.searchRecursively(projectRoot, targetPath);
     }
 
-    private locateProjectRoot(startDir: string): string | null {
+    private findProjectRoot(startDir: string): string | null {
         let currentDir = path.resolve(startDir);
-        while (true) {
+        while (currentDir !== path.dirname(currentDir)) {
             if (path.basename(currentDir) === this.projectRootName) {
                 return currentDir;
             }
-
-            const parentDir = path.dirname(currentDir);
-            if (parentDir === currentDir) {
-                // Reached filesystem root without finding project root
-                return null;
-            }
-
-            currentDir = parentDir;
-        }
-    }
-
-    private searchFromRoot(rootDir: string, targetPath: string): string | null {
-        const fullPath = path.join(rootDir, targetPath);
-
-        if (this.itemExists(fullPath)) {
-            return fullPath;
-        }
-
-        const subdirectories = this.getSubdirectories(rootDir);
-        for (const subdir of subdirectories) {
-            const subdirPath = path.join(rootDir, subdir);
-            if (this.isExcluded(subdirPath)) {
-                continue;
-            }
-            const result = this.searchFromRoot(subdirPath, targetPath);
-            if (result) {
-                return result;
-            }
+            currentDir = path.dirname(currentDir);
         }
         return null;
     }
 
-    private itemExists(itemPath: string): boolean {
-        try {
-            return fs.existsSync(itemPath);
-        } catch (error) {
-            return false;
+    private searchRecursively(rootDir: string, targetPath: string): string | null {
+        const fullPath = path.join(rootDir, targetPath);
+        if (this.pathExists(fullPath)) {
+            return fullPath;
         }
+
+        const subdirectories = this.getValidSubdirectories(rootDir);
+        for (const subdir of subdirectories) {
+            const result = this.searchRecursively(path.join(rootDir, subdir), targetPath);
+            if (result) return result;
+        }
+        return null;
     }
 
-    private getSubdirectories(dir: string): string[] {
+    private pathExists(itemPath: string): boolean {
+        return fs.existsSync(itemPath);
+    }
+
+    private getValidSubdirectories(dir: string): string[] {
         return fs.readdirSync(dir, { withFileTypes: true })
             .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name);
+            .map(dirent => dirent.name)
+            .filter(subdir => !this.isExcludedPath(path.join(dir, subdir)));
     }
 
-    private isExcluded(dirPath: string): boolean {
-        return this.excludedPaths.some(excludedPath => {
-            return dirPath.startsWith(excludedPath) || path.relative(excludedPath, dirPath) === '';
-        })
+    private isExcludedPath(dirPath: string): boolean {
+        return this.normalizedExcludedPaths.some(excludedPath =>
+            dirPath.startsWith(excludedPath) || path.relative(excludedPath, dirPath) === ''
+        );
     }
 }
-
-// export function findPath(targetPath: string, excludedPaths: string[] = []): string | null {
-//     const finder = new PathFinder('verbo', excludedPaths); // Adjust 'verbo' to match your project root name
-//     const startDir = process.cwd();
-//     const result = finder.find(startDir, targetPath);
-
-//     if (!result) {
-//         console.log(`Item not found: ${targetPath}`);
-//     }
-
-//     return result;
-// }
-
 
 export function findPath(targetPath: string): string {
-    const excludedPaths = [
-        'node_modules',
-        'build',
-        'cdk.out',
-        '.git',
-        '.next'
-    ];
+    const defaultExcludedPaths = ['node_modules', 'build', 'cdk.out', '.git', '.next'];
+    const pathFinder = new PathFinder('verbo', defaultExcludedPaths);
+    const result = pathFinder.findTargetPath(process.cwd(), targetPath);
 
-    try {
-        const finder = new PathFinder('verbo', excludedPaths); // Adjust 'verbo' to match your project root name
-        const startDir = process.cwd();
-        const result = finder.find(startDir, targetPath);
-
-        if (!result) {
-            console.log(`Item not found: ${targetPath}`);
-        }
-
-        return result as string;
-    } catch (error: unknown) {
-        if (error instanceof Error) {
-            throw new Error(`Error while finding path: ${error.message}`);
-        }
-        throw error;
+    if (!result) {
+        throw new Error(`Item not found: ${targetPath}`);
     }
+
+    return result;
 }
+
+
+// 1. The PathFinder class is initialized with a project root name and a list of excluded paths.
+// 2. The findTargetPath method - is the main entry point, which first finds the project root and then searches for the target path.
+// 3. findProjectRoot method - traverses up the directory tree to find the project root folder.
+// 4. searchRecursively method - performs a depth-first search through the directory structure, avoiding excluded paths.
+// 5. Helper methods like pathExists, getValidSubdirectories, and isExcludedPath are used to support the main search functionality.
+// 6. The findPath function provides a simple interface to use the PathFinder class, with default excluded paths.
 
 
 // Example usage
