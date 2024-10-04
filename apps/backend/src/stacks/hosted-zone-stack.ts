@@ -2,11 +2,11 @@ import * as cdk from "aws-cdk-lib";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 
-interface HostedZoneStackProps extends cdk.StackProps {
+interface HostedZoneStackProps extends cdk.NestedStackProps {
     domainName: string;
 }
 
-export class HostedZoneStack extends cdk.Stack {
+export class HostedZoneStack extends cdk.NestedStack {
     public readonly hostedZone: route53.IHostedZone;
 
     constructor(scope: Construct, id: string, props: HostedZoneStackProps) {

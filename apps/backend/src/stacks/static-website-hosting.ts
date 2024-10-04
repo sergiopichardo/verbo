@@ -6,7 +6,7 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as cloudfrontOrigins from "aws-cdk-lib/aws-cloudfront-origins";
 
-interface StaticWebsiteHostingStackProps extends cdk.StackProps {
+interface StaticWebsiteHostingStackProps extends cdk.NestedStackProps {
     frontendBuildPath: string;
     domainName: string;
     subdomain: string;
@@ -16,7 +16,7 @@ interface StaticWebsiteHostingStackProps extends cdk.StackProps {
     certificate: acm.Certificate;
 }
 
-export class StaticWebsiteHostingStack extends cdk.Stack {
+export class StaticWebsiteHostingStack extends cdk.NestedStack {
 
     public readonly distribution: cloudfront.Distribution;
     public readonly originBucket: s3.Bucket;

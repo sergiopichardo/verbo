@@ -5,14 +5,14 @@ import { Construct } from "constructs";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 
-interface DnsRecordStackProps extends cdk.StackProps {
+interface DnsRecordStackProps extends cdk.NestedStackProps {
     domainName: string;
     hostedZone: route53.IHostedZone;
     restApi: apigateway.RestApi;
     distribution: cloudfront.Distribution;
 }
 
-export class DnsRecordStack extends cdk.Stack {
+export class DnsRecordStack extends cdk.NestedStack {
     constructor(scope: Construct, id: string, props: DnsRecordStackProps) {
         super(scope, id, props);
 

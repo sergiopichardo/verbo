@@ -4,6 +4,7 @@
   "scripts": {
     "frontend:dev": "npm run dev --workspace=@verbo/frontend",
     "frontend:build": "npm run build --workspace=@verbo/frontend",
+    "backend:dev": "npm run dev --workspace=@verbo/backend",
     "backend:deploy": "npm run deploy --workspace=@verbo/backend",
     "backend:destroy": "npm run destroy --workspace=@verbo/backend",
     "utils-layer:build": "npm run build --workspace=@verbo/utils",

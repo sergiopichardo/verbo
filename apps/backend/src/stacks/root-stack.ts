@@ -29,13 +29,11 @@ export class RootStack extends cdk.Stack {
 
         const dynamodbStack = new DynamodbStack(this, `${props.appName}DynamodbStack`, {
             appName: props.appName,
-            env: props.env,
         });
 
         // create DNS stack 
         const hostedZoneStack = new HostedZoneStack(this, `${props.appName}HostedZoneStack`, {
             domainName: props.domainName,
-            env: props.env,
         });
 
         // create Certificate stack
@@ -44,7 +42,6 @@ export class RootStack extends cdk.Stack {
             hostedZone: hostedZoneStack.hostedZone,
             subdomain: props.subdomain,
             apiSubDomain: props.apiSubDomain,
-            env: props.env,
         });
 
         // auth stack (will go here) --> it will consume the users table 
@@ -56,7 +53,6 @@ export class RootStack extends cdk.Stack {
             domainName: props.domainName,
             apiSubDomain: props.apiSubDomain,
             certificate: certificateStack.certificate,
-            env: props.env,
         });
 
         const hostingStack = new StaticWebsiteHostingStack(this, `${props.appName}StaticWebsiteHostingStack`, {
@@ -67,7 +63,6 @@ export class RootStack extends cdk.Stack {
             cloudFrontFunctionFilePath: props.cloudFrontFunctionFilePath,
             apiSubDomain: props.apiSubDomain,
             certificate: certificateStack.certificate,
-            env: props.env,
         });
 
         new DnsRecordStack(this, `${props.appName}DnsRecordStack`, {
@@ -75,7 +70,6 @@ export class RootStack extends cdk.Stack {
             hostedZone: hostedZoneStack.hostedZone,
             restApi: apiStack.restApi,
             distribution: hostingStack.distribution,
-            env: props.env,
         });
 
         /**
@@ -99,12 +93,13 @@ export class RootStack extends cdk.Stack {
             destinationBucket: hostingStack.originBucket,
         });
 
-        // Outputs
+        // Cloudfront Outputs
         new cdk.CfnOutput(this, "staticWebsiteDistributionDomain", {
             value: `https://${hostingStack.distribution.domainName}`,
             exportName: "staticWebsiteDistributionDomain",
         });
 
+        // // API Gateaway Outputs
         new cdk.CfnOutput(this, "translationsApiBaseUrl", {
             value: `https://${props.apiSubDomain}.${props.domainName}`,
             exportName: "translationsApiBaseUrl",
@@ -119,6 +114,11 @@ export class RootStack extends cdk.Stack {
         new cdk.CfnOutput(this, "userPoolClientId", {
             value: authStack.userPoolClient.userPoolClientId,
             exportName: "userPoolClientId",
+        });
+
+        new cdk.CfnOutput(this, "identityPoolId", {
+            value: authStack.identityPool.ref,
+            exportName: "identityPoolId",
         });
     }
 }

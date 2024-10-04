@@ -9,7 +9,9 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
+    "hotswap": "cdk watch --hotswap --profile default --outputs-file outputs.json --require-approval never",
     "deploy": "cdk deploy --all --profile default --outputs-file outputs.json --require-approval never",
+    "dev": "npm run deploy && npm run hotswap",
     "postdeploy": "npx ts-node process-cdk-outputs.ts",
     "destroy": "cdk destroy --all --profile default"
   },

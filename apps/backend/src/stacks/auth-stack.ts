@@ -4,14 +4,15 @@ import * as cdk from "aws-cdk-lib";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 
 
-interface AuthStackProps extends cdk.StackProps {
+interface AuthStackProps extends cdk.NestedStackProps {
     appName: string;
 }
 
-export class AuthStack extends cdk.Stack {
+export class AuthStack extends cdk.NestedStack {
     public userPool: cognito.UserPool;
     public userPoolClient: cognito.UserPoolClient;
     public identityPool: cognito.CfnIdentityPool;
+
     constructor(scope: Construct, id: string, props: AuthStackProps) {
         super(scope, id, props);
 
@@ -32,11 +33,6 @@ export class AuthStack extends cdk.Stack {
             removalPolicy: cdk.RemovalPolicy.DESTROY, // delete the user pool when the stack is deleted
         });
 
-        new cdk.CfnOutput(this, "userPoolId", {
-            value: userPool.userPoolId,
-            exportName: "userPoolId",
-        });
-
         return userPool;
     }
 
@@ -46,15 +42,12 @@ export class AuthStack extends cdk.Stack {
             authFlows: {
                 userSrp: true,
             },
-            generateSecret: false, // do not generate a secret for the client 
             supportedIdentityProviders: [
                 cognito.UserPoolClientIdentityProvider.COGNITO,
             ],
-        });
-
-        new cdk.CfnOutput(this, "userPoolClientId", {
-            value: this.userPoolClient.userPoolClientId,
-            exportName: "userPoolClientId",
+            generateSecret: false, // do not generate a secret for the client 
+            // This is necessary for single page applications (SPAs) as they
+            // cannot securely store a client secret on the client-side
         });
 
         return userPoolClient;
@@ -66,7 +59,7 @@ export class AuthStack extends cdk.Stack {
             cognitoIdentityProviders: [
                 {
                     clientId: this.userPoolClient.userPoolClientId,
-                    providerName: this.userPool.userPoolId,
+                    providerName: this.userPool.userPoolProviderName,
                 },
             ],
         });

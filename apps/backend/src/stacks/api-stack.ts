@@ -4,7 +4,7 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import { Construct } from "constructs";
 
 
-interface RestApiStackProps extends cdk.StackProps {
+interface RestApiStackProps extends cdk.NestedStackProps {
   domainName: string;
   apiSubDomain: string;
   certificate: acm.Certificate;
@@ -18,7 +18,7 @@ export type ApiGatewayMethods = "GET"
   | "HEAD"
   | "OPTIONS";
 
-export class RestApiStack extends cdk.Stack {
+export class RestApiStack extends cdk.NestedStack {
   private readonly _restApi: apigateway.RestApi;
 
 

@@ -1,11 +1,12 @@
 import * as cdk from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
-interface DynamodbStackProps extends cdk.StackProps {
+
+interface DynamodbStackProps extends cdk.NestedStackProps {
     appName: string;
 }
 
-export class DynamodbStack extends cdk.Stack {
+export class DynamodbStack extends cdk.NestedStack {
     public readonly translationsTable: dynamodb.TableV2;
 
     constructor(scope: Construct, id: string, props: DynamodbStackProps) {

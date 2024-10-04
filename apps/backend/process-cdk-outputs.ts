@@ -1,9 +1,10 @@
 import path from 'path';
+import { findPath } from './helpers/path-finder'
 import { OutputProcessor } from './helpers/outputs-processor';
 
 // Main Program
-const inputPath = path.join(__dirname, 'outputs.json');
-const outputPath = path.join(__dirname, '..', 'frontend', 'src', 'config', 'backendOutputs.json');
+const inputPath = findPath('backend/outputs.json');
+const outputPath = findPath('frontend/backendOutputs.json');
 const propertiesToExtract = [
     'translationsApiBaseUrl'
 ];
