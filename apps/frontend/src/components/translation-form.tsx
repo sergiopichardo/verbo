@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { translateFormSchema, TTranslateForm } from "../schema/translateForm";
+import { translateFormSchema, TTranslateForm } from "../schema/translateForm.schema";
 
 import { ArrowLeftRight } from "lucide-react";
 

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import Link from "next/link";
+
+import { ConfigureAmplifyClient } from "@/components";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,9 +33,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="flex flex-row gap-4 px-2 py-2">
+        <ConfigureAmplifyClient />
+        <div className="flex flex-row gap-4 px-2 py-2 bg-orange-400">
           <Link href="/">Home</Link>
-          <Link href="/user">User</Link>
+          <Link href="/login">Login</Link>
         </div>
         {children}
         <Toaster />
