@@ -36,7 +36,8 @@ export default function RootLayout({
         <ConfigureAmplifyClient />
         <div className="flex flex-row gap-4 px-2 py-2 bg-orange-400">
           <Link href="/">Home</Link>
-          <Link href="/login">Login</Link>
+          <Link href="/login">Log in</Link>
+          <Link href="/signup">Sign up</Link>
         </div>
         {children}
         <Toaster />

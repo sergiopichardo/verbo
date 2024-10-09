@@ -19,8 +19,8 @@ export const signUpPageSchema = z.object({
 
 export type TSignUpForm = z.infer<typeof signUpPageSchema>;
 
-export const verifyEmailFormSchema = z.object({
+export const confirmSignUpFormSchema = z.object({
     confirmationCode: z.string().length(6, "Confirmation code must be 6 characters"),
 });
 
-export type TVerifyEmailForm = z.infer<typeof verifyEmailFormSchema>;
+export type TConfirmSignUpForm = z.infer<typeof confirmSignUpFormSchema>;

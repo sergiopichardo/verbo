@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { confirmSignUp, resendSignUpCode } from "aws-amplify/auth"
+import { autoSignIn, confirmSignUp, resendSignUpCode } from "aws-amplify/auth"
 
 import {
     Form,
@@ -20,26 +20,32 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
 import {
-    type TVerifyEmailForm,
-    verifyEmailFormSchema
+    type TConfirmSignUpForm,
+    confirmSignUpFormSchema
 } from "@/schema/authentication.schema"
 import toast from 'react-hot-toast'
+import { ISignUpState } from '@/app/signup/page'
 
-export default function VerifyEmailPage() {
+
+interface IConfirmSignUpFormProps {
+    onAuthStepChange: (step: ISignUpState) => void
+}
+
+export default function ConfirmSignUpForm({ onAuthStepChange }: IConfirmSignUpFormProps) {
     const [isLoading, setIsLoading] = useState(false)
 
 
     const searchParams = useSearchParams()
     const email = searchParams.get('email')
 
-    const form = useForm<TVerifyEmailForm>({
-        resolver: zodResolver(verifyEmailFormSchema),
+    const form = useForm<TConfirmSignUpForm>({
+        resolver: zodResolver(confirmSignUpFormSchema),
         defaultValues: {
             confirmationCode: "",
         },
     })
 
-    const onSubmit = async (data: TVerifyEmailForm) => {
+    const onSubmit = async (data: TConfirmSignUpForm) => {
         setIsLoading(true);
 
         try {
@@ -48,10 +54,12 @@ export default function VerifyEmailPage() {
                 return;
             }
 
-            await confirmSignUp({
+            const { nextStep } = await confirmSignUp({
                 username: email,
                 confirmationCode: data.confirmationCode,
             });
+
+            onAuthStepChange(nextStep);
 
         } catch (error) {
             console.error("Error verifying email:", error);

@@ -1,132 +1,37 @@
 "use client"
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect, useState } from 'react'
-
-import { signUp, confirmSignUp, SignUpOutput, AuthError } from "aws-amplify/auth"
+import SignUpForm from "@/components/signup-form";
+import ConfirmSignUpForm from "@/components/confirm-signup";
+import AutoSignInForm from "@/components/auto-signin-form";
 
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
-} from "@/components/ui/form"
+    SignInOutput,
+    SignUpOutput
+} from "aws-amplify/auth";
 
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
 
-import {
-    type TSignUpForm,
-    signUpPageSchema
-} from "@/schema/authentication.schema"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import toast from "react-hot-toast"
+export type ISignUpState = SignUpOutput['nextStep'];
+export type ISignInStep = SignInOutput['nextStep'];
 
 
 export default function SignUpPage() {
-    const [isLoading, setIsLoading] = useState(false)
-    const router = useRouter()
+    const [authStep, setAuthStep] = useState<ISignUpState | ISignInStep | null>(null);
 
-    const form = useForm<TSignUpForm>({
-        resolver: zodResolver(signUpPageSchema),
-        defaultValues: {
-            email: "",
-            password: "",
-            confirmPassword: "",
-        },
-    })
-
-    useEffect(() => {
-        setIsLoading(true)
-    }, [])
-
-    const onSubmit = async (data: TSignUpForm) => {
-        try {
-            const { nextStep } = await signUp({
-                username: data.email,
-                password: data.password,
-                options: {
-                    userAttributes: {
-                        email: data.email,
-                    },
-                    autoSignIn: {
-                        enabled: true,
-                    }
-                }
-            })
-
-            if (nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
-                router.push(`/verify-email?email=${data.email}`)
-            }
-
-        } catch (error) {
-            if (error instanceof AuthError) {
-                toast.error("Error signing up");
-            }
-        } finally {
-            form.reset();
-            setIsLoading(false);
+    if (authStep) {
+        if ((authStep as ISignUpState).signUpStep === 'CONFIRM_SIGN_UP') {
+            return <ConfirmSignUpForm onAuthStepChange={setAuthStep} />
         }
+
+        if ((authStep as ISignUpState).signUpStep === 'COMPLETE_AUTO_SIGN_IN') {
+            return <AutoSignInForm onAuthStepChange={setAuthStep} />
+        }
+
+        // if ((authStep as ISignUpState).signUpStep === 'DONE') {
+        //     return <div>Done</div>
+        // }
     }
 
-    if (!isLoading) {
-        return <div>Loading ...</div> // or a loading indicator
-    }
+    return <SignUpForm onAuthStepChange={setAuthStep} />
 
-    return (
-        <div className="max-w-md mx-auto mt-8">
-            <h1 className="text-2xl font-bold mb-4">Sign Up</h1>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Email</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Password</FormLabel>
-                                <FormControl>
-                                    <Input type="text" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Confirm Password</FormLabel>
-                                <FormControl>
-                                    <Input type="text" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <Button type="submit">Sign Up</Button>
-                </form>
-            </Form>
-            <div className="mt-4">
-                Already have an account? <Link href="/login" className="text-blue-500">Log In</Link>
-            </div>
-        </div>
-    )
 }
