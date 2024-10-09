@@ -29,14 +29,11 @@ import { ISignUpState } from '@/app/signup/page'
 
 interface IConfirmSignUpFormProps {
     onAuthStepChange: (step: ISignUpState) => void
+    email: string | null
 }
 
-export default function ConfirmSignUpForm({ onAuthStepChange }: IConfirmSignUpFormProps) {
+export default function ConfirmSignUpForm({ onAuthStepChange, email }: IConfirmSignUpFormProps) {
     const [isLoading, setIsLoading] = useState(false)
-
-
-    const searchParams = useSearchParams()
-    const email = searchParams.get('email')
 
     const form = useForm<TConfirmSignUpForm>({
         resolver: zodResolver(confirmSignUpFormSchema),
@@ -60,7 +57,6 @@ export default function ConfirmSignUpForm({ onAuthStepChange }: IConfirmSignUpFo
             });
 
             onAuthStepChange(nextStep);
-
         } catch (error) {
             console.error("Error verifying email:", error);
         } finally {
@@ -91,6 +87,8 @@ export default function ConfirmSignUpForm({ onAuthStepChange }: IConfirmSignUpFo
     return (
         <div className="max-w-md mx-auto mt-8">
             <h1 className="text-2xl font-bold mb-4">Verify Your Email</h1>
+            <p>Please enter the verification code sent to {email}</p>
+
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField

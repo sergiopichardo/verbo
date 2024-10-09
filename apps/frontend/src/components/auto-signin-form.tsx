@@ -10,13 +10,15 @@ interface IAutoSignInFormProps {
 
 export default function AutoSignInForm({ onAuthStepChange }: IAutoSignInFormProps) {
     useEffect(() => {
-        // see autoSignIn.d.ts for complete auth example with switch case
-        autoSignIn()
-            .then(({ nextStep }) => {
-                onAuthStepChange(nextStep)
-            })
-            .catch((error) => console.error("Error auto signing in:", error))
-    }, [])
+        const handleAutoSignIn = async () => {
+            const { nextStep } = await autoSignIn();
+            console.log("nextStep", nextStep);
+            onAuthStepChange(nextStep);
+        };
+
+        handleAutoSignIn();
+
+    }, [onAuthStepChange]);
 
     return <div>Signing in...</div>
 }

@@ -12,15 +12,16 @@ import {
     FormItem,
     FormLabel,
     FormMessage
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 import {
     type TSignInForm,
     logInPageSchema
-} from "@/schema/authentication.schema"
-import Link from "next/link"
+} from "@/schema/authentication.schema";
+
+import Link from "next/link";
 
 export default function LogInPage() {
     const [isLoading, setIsLoading] = useState(false)
@@ -39,7 +40,10 @@ export default function LogInPage() {
 
     const onSubmit = async (data: TSignInForm) => {
         try {
-            await signIn({ ...data, username: data.email })
+            await signIn({
+                username: data.email,
+                password: data.password
+            });
             // Handle successful sign-in
         } catch (error) {
             console.error("Error signing in:", error)
@@ -89,7 +93,7 @@ export default function LogInPage() {
                 </form>
             </Form>
             <div className="mt-4">
-                Don't have an account? <Link href="/signup" className="text-blue-500">Sign Up</Link>
+                Don&apos;t have an account? <Link href="/signup" className="text-blue-500">Sign Up</Link>
             </div>
         </div>
     )

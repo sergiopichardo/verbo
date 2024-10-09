@@ -29,10 +29,11 @@ import { ISignUpState } from "@/app/signup/page"
 
 interface ISignUpFormProps {
     onAuthStepChange: (step: ISignUpState) => void
+    setEmail: (email: string) => void
 }
 
 
-export default function SignUpForm({ onAuthStepChange }: ISignUpFormProps) {
+export default function SignUpForm({ onAuthStepChange, setEmail }: ISignUpFormProps) {
     const [isLoading, setIsLoading] = useState(false)
 
     const form = useForm<TSignUpForm>({
@@ -44,11 +45,8 @@ export default function SignUpForm({ onAuthStepChange }: ISignUpFormProps) {
         },
     })
 
-    useEffect(() => {
-        setIsLoading(true)
-    }, [])
-
     const onSubmit = async (data: TSignUpForm) => {
+        setIsLoading(true)
         try {
             const { nextStep } = await signUp({
                 username: data.email,
@@ -64,6 +62,7 @@ export default function SignUpForm({ onAuthStepChange }: ISignUpFormProps) {
             })
 
             onAuthStepChange(nextStep);
+            setEmail(data.email);
 
         } catch (error) {
             if (error instanceof AuthError) {
@@ -73,10 +72,6 @@ export default function SignUpForm({ onAuthStepChange }: ISignUpFormProps) {
             form.reset();
             setIsLoading(false);
         }
-    }
-
-    if (!isLoading) {
-        return <div>Loading ...</div> // or a loading indicator
     }
 
     return (
@@ -123,7 +118,12 @@ export default function SignUpForm({ onAuthStepChange }: ISignUpFormProps) {
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Sign Up</Button>
+                    <Button
+                        type="submit"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Signing up..." : "Sign Up"}
+                    </Button>
                 </form>
             </Form>
             <div className="mt-4">
