@@ -1,6 +1,6 @@
 "use client"
 
-import { signIn } from "aws-amplify/auth"
+import { getCurrentUser, signIn } from "aws-amplify/auth"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useState } from 'react'
@@ -23,7 +23,7 @@ import {
 
 import Link from "next/link";
 
-export default function LogInPage() {
+const LogInForm = () => {
     const [isLoading, setIsLoading] = useState(false)
 
     const form = useForm<TSignInForm>({
@@ -97,4 +97,22 @@ export default function LogInPage() {
             </div>
         </div>
     )
+}
+
+export default function LogInPage() {
+    const [user, setUser] = useState<object | null>(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const user = await getCurrentUser();
+            setUser(user);
+        }
+        fetchUser();
+    }, [])
+
+    if (!user) {
+        return <div>Loading ...</div> // or a loading indicator
+    }
+
+    return <LogInForm />
 }
