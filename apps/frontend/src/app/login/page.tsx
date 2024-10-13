@@ -1,6 +1,6 @@
 "use client"
 
-import { getCurrentUser, signIn } from "aws-amplify/auth"
+import { getCurrentUser, signIn, signOut } from "aws-amplify/auth"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useState } from 'react'
@@ -99,8 +99,18 @@ const LogInForm = () => {
     )
 }
 
+const LogOut = () => {
+    return (
+        <div>
+            <Button onClick={async () => {
+                await signOut();
+            }}>Log Out</Button>
+        </div>
+    )
+}
+
 export default function LogInPage() {
-    const [user, setUser] = useState<object | null>(null);
+    const [user, setUser] = useState<object | null | undefined>(undefined);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -112,6 +122,10 @@ export default function LogInPage() {
 
     if (!user) {
         return <div>Loading ...</div> // or a loading indicator
+    }
+
+    if (user) {
+        return <LogOut />
     }
 
     return <LogInForm />
