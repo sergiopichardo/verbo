@@ -1,6 +1,8 @@
 import { Construct } from "constructs";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import * as route53Targets from "aws-cdk-lib/aws-route53-targets";
 import * as cdk from "aws-cdk-lib";
-import * as apigateway from "aws-cdk-lib/aws-apigateway";
+
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
@@ -12,8 +14,8 @@ interface StaticWebsiteHostingStackProps extends cdk.NestedStackProps {
     subdomain: string;
     cloudFrontFunctionFilePath: string;
     apiSubDomain: string;
-    restApi: apigateway.RestApi;
     certificate: acm.Certificate;
+    hostedZone: route53.IHostedZone;
 }
 
 export class StaticWebsiteHostingStack extends cdk.NestedStack {
@@ -28,6 +30,12 @@ export class StaticWebsiteHostingStack extends cdk.NestedStack {
         const certificate = props.certificate;
         const cloudFrontFunction = this._createCloudFrontFunction(props);
         this.distribution = this._createDistribution(this.originBucket, certificate, cloudFrontFunction, props);
+
+        this._createDnsRecords({
+            distribution: this.distribution,
+            hostedZone: props.hostedZone,
+            domainName: props.domainName,
+        });
     }
 
     private _createCloudFrontFunction(props: StaticWebsiteHostingStackProps): cloudfront.Function {
@@ -93,5 +101,24 @@ export class StaticWebsiteHostingStack extends cdk.NestedStack {
         });
 
         return distribution;
+    }
+
+    private _createDnsRecords(props: {
+        distribution: cloudfront.Distribution;
+        hostedZone: route53.IHostedZone;
+        domainName: string;
+    }) {
+        new route53.ARecord(this, "MainDomainRecord", {
+            zone: props.hostedZone,
+            recordName: props.domainName,
+            target: route53.RecordTarget.fromAlias(new route53Targets.CloudFrontTarget(props.distribution)),
+        });
+
+        // Create A record for the www subdomain
+        new route53.ARecord(this, "WwwSubdomainRecord", {
+            zone: props.hostedZone,
+            recordName: `www.${props.domainName}`,
+            target: route53.RecordTarget.fromAlias(new route53Targets.CloudFrontTarget(props.distribution)),
+        });
     }
 }
