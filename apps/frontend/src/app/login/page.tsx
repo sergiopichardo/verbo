@@ -100,10 +100,12 @@ const LogInForm = () => {
 }
 
 const LogOut = () => {
+
     return (
         <div>
             <Button onClick={async () => {
                 await signOut();
+                console.log("signed out")
             }}>Log Out</Button>
         </div>
     )
@@ -114,15 +116,20 @@ export default function LogInPage() {
 
     useEffect(() => {
         const fetchUser = async () => {
-            const user = await getCurrentUser();
-            setUser(user);
+            try {
+                const user = await getCurrentUser();
+                console.log(user)
+                setUser(user);
+            } catch (error) {
+                setUser(null);
+            }
         }
         fetchUser();
     }, [])
 
-    if (!user) {
-        return <div>Loading ...</div> // or a loading indicator
-    }
+    // if (!user) {
+    //     return <div>Loading ...</div> // or a loading indicator
+    // }
 
     if (user) {
         return <LogOut />
