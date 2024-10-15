@@ -1,15 +1,14 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
-import { RestApiStack } from "./api-stack";
 import { StaticWebsiteHostingStack } from "./static-website-hosting";
 import { HostedZoneStack } from "./hosted-zone-stack";
 import { CertificateStack } from "./certificate-stack";
-import { TranslationServiceConstruct } from "../constructs/translation-service-construct";
+
 import { StaticWebsiteDeploymentConstruct } from "../constructs/static-website-deployment-construct";
-import { DnsRecordStack } from "./dns-record-stack";
 import { DynamodbStack } from "./dynamodb-stack";
 import { AuthStack } from "./auth-stack";
+import { TranslationStack } from "./translation-stack";
 
 interface RootStackProps extends cdk.StackProps {
     appName: string;
@@ -49,41 +48,29 @@ export class RootStack extends cdk.Stack {
             appName: props.appName,
         });
 
-        const apiStack = new RestApiStack(this, `${props.appName}ApiStack`, {
-            domainName: props.domainName,
-            apiSubDomain: props.apiSubDomain,
-            certificate: certificateStack.certificate,
-        });
-
         const hostingStack = new StaticWebsiteHostingStack(this, `${props.appName}StaticWebsiteHostingStack`, {
             domainName: props.domainName,
             subdomain: props.subdomain,
-            restApi: apiStack.restApi,
             frontendBuildPath: props.frontendBuildPath,
             cloudFrontFunctionFilePath: props.cloudFrontFunctionFilePath,
             apiSubDomain: props.apiSubDomain,
             certificate: certificateStack.certificate,
+            hostedZone: hostedZoneStack.hostedZone,
         });
 
-        new DnsRecordStack(this, `${props.appName}DnsRecordStack`, {
+        new TranslationStack(this, `${props.appName}TranslationStack`, {
             domainName: props.domainName,
+            apiSubDomain: props.apiSubDomain,
+            certificate: certificateStack.certificate,
+            userPool: authStack.userPool,
+            stageName: props.stageName,
+            translationsTable: dynamodbStack.translationsTable,
             hostedZone: hostedZoneStack.hostedZone,
-            restApi: apiStack.restApi,
-            distribution: hostingStack.distribution,
         });
 
         /**
          * Constructs
          */
-
-        new TranslationServiceConstruct(this, `${props.appName}TranslationServiceConstruct`, {
-            appName: props.appName,
-            restApi: apiStack.restApi,
-            domainName: props.domainName,
-            apiSubDomain: props.apiSubDomain,
-            translationsTable: dynamodbStack.translationsTable,
-            stageName: props.stageName,
-        });
 
         new StaticWebsiteDeploymentConstruct(this, `${props.appName}StaticWebsiteDeploymentStack`, {
             domainName: props.domainName,
