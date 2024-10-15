@@ -1,2 +1,4 @@
 outputs.json
 .env
+cdk.json 
+cdk.context.json
