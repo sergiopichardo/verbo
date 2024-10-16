@@ -36,7 +36,6 @@ export class RestApiService extends Construct {
             },
         });
 
-        // Create the /translations resource
         this.translationsResource = this.restApi.root.addResource(props.resourceName);
 
         if (props.userPool) {
@@ -55,11 +54,11 @@ export class RestApiService extends Construct {
     public addMethod(props: {
         method: string,
         lambda: lambdaNodejs.NodejsFunction,
-        isAuthorized?: boolean,
+        isProtected?: boolean,
     }) {
         let options: apigateway.MethodOptions = {};
 
-        if (props.isAuthorized) {
+        if (props.isProtected) {
             if (!this.authorizer) {
                 throw new Error("Authorizer is required for authorized methods");
             }
