@@ -74,6 +74,8 @@ export class TranslationService extends Construct {
             ],
             environment: {
                 TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
+                TRANSLATIONS_PARTITION_KEY: "username",
+                TRANSLATIONS_SORT_KEY: "requestId",
             },
             bundling: {
                 minify: true,
@@ -118,7 +120,8 @@ export class TranslationService extends Construct {
             ],
             environment: {
                 TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
-                TRANSLATIONS_PARTITION_KEY: "requestId",
+                TRANSLATIONS_PARTITION_KEY: "username",
+                TRANSLATIONS_SORT_KEY: "requestId",
             },
             bundling: {
                 minify: true,
