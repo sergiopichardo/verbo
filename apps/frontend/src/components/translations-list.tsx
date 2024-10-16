@@ -1,23 +1,28 @@
+"use client"
+
 import { TranslationDBObject } from "@verbo/shared-types";
 import { format, parseISO } from 'date-fns';
+import { Button } from "./ui/button";
+import { useState } from "react";
+import { getTranslations } from "@/services/translations/get-translations.service";
 
-interface TranslationsListProps {
-    translations: TranslationDBObject[];
-}
+export const TranslationsList = () => {
 
-export const TranslationsList = ({ translations }: TranslationsListProps) => {
+    const [translations, setTranslations] = useState<TranslationDBObject[]>([]);
 
-    if (!translations) {
-        return <div>Loading...</div>;
-    }
+    const handleFetchTranslations = async () => {
+        const data = await getTranslations();
+        setTranslations(data);
+    };
 
-    if (translations.length === 0) {
-        return <div>No translations yet</div>;
-    }
+    // if (translations.length === 0) {
+    //     return <div>No translations yet</div>;
+    // }
 
     return (
         <div className="flex flex-col space-y-2">
             <h2 className="text-2xl font-semibold">Translations</h2>
+            <Button onClick={handleFetchTranslations}>Fetch Translations</Button>
 
             {translations.map((translation: TranslationDBObject) => (
                 <div key={translation.requestId} className="mt-8 p-4 border rounded-lg">

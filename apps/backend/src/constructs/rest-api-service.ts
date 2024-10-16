@@ -11,11 +11,13 @@ interface RestApiServiceProps extends cdk.NestedStackProps {
     apiSubDomain: string;
     certificate: acm.Certificate;
     userPool?: cognito.UserPool;
+    resourceName: string;
 }
 
 export class RestApiService extends Construct {
     public restApi: apigateway.RestApi;
     public authorizer?: apigateway.CognitoUserPoolsAuthorizer;
+    private translationsResource: apigateway.Resource;
 
     constructor(scope: Construct, id: string, props: RestApiServiceProps) {
         super(scope, id);
@@ -25,6 +27,8 @@ export class RestApiService extends Construct {
                 allowOrigins: apigateway.Cors.ALL_ORIGINS,
                 allowMethods: apigateway.Cors.ALL_METHODS,
                 allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
+                allowCredentials: true,
+                disableCache: true, // TODO: Remove this when launching to prod
             },
             domainName: {
                 domainName: `${props.apiSubDomain}.${props.domainName}`,
@@ -32,39 +36,44 @@ export class RestApiService extends Construct {
             },
         });
 
+        // Create the /translations resource
+        this.translationsResource = this.restApi.root.addResource(props.resourceName);
+
         if (props.userPool) {
-            this.authorizer = new apigateway.CognitoUserPoolsAuthorizer(this.restApi, "CognitoAuthorizer", {
+            this.authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, "CognitoAuthorizer", {
                 cognitoUserPools: [props.userPool],
                 authorizerName: "userPoolAuthorizer",
             });
+
+            this.authorizer._attachToApi(this.restApi);
+            console.log("Authorizer created");
+        } else {
+            console.log("No user pool provided, authorizer not created");
         }
     }
-
 
     public addMethod(props: {
         method: string,
         lambda: lambdaNodejs.NodejsFunction,
         isAuthorized?: boolean,
     }) {
-
-        if (props.isAuthorized && !this.authorizer) {
-            throw new Error("Authorizer is required for authorized methods");
-        }
-
         let options: apigateway.MethodOptions = {};
 
         if (props.isAuthorized) {
+            if (!this.authorizer) {
+                throw new Error("Authorizer is required for authorized methods");
+            }
+
             options = {
-                authorizer: this.authorizer as apigateway.CognitoUserPoolsAuthorizer,
+                authorizer: this.authorizer,
                 authorizationType: apigateway.AuthorizationType.COGNITO,
             }
         }
 
-        this.restApi.root.addMethod(
+        this.translationsResource.addMethod(
             props.method,
             new apigateway.LambdaIntegration(props.lambda),
             options
-        )
+        );
     }
 }
-

@@ -26,13 +26,9 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 
 
-type TranslationFormProps = {
-  onTranslation: () => void;
-};
+type TranslationFormProps = {};
 
-export default function TranslationForm({
-  onTranslation,
-}: TranslationFormProps) {
+export default function TranslationForm(props: TranslationFormProps) {
   const [isLoading, setIsLoading] = useState(false);
 
 
@@ -62,8 +58,6 @@ export default function TranslationForm({
         throw new Error("Error in translation");
       }
 
-      onTranslation();
-
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message, {
@@ -72,11 +66,11 @@ export default function TranslationForm({
       }
     } finally {
       setIsLoading(false);
-      form.reset({
-        inputText: "",
-        inputLanguage: "",
-        outputLanguage: "",
-      });
+      // form.reset({
+      //   inputText: "",
+      //   inputLanguage: "",
+      //   outputLanguage: "",
+      // });
     }
 
   };

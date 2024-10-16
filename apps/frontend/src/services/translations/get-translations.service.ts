@@ -1,11 +1,8 @@
-import backendOutputs from '../../config/backendOutputs.json';
 import { TranslationDBObject } from "@verbo/shared-types";
 
 export const getTranslations = async (): Promise<TranslationDBObject[]> => {
-    const { translationsApiBaseUrl } = backendOutputs;
-
     try {
-        const response = await fetch(`${translationsApiBaseUrl}/translations`, {
+        const response = await fetch(`https://api.verbotranslator.com/translations`, {
             method: 'GET'
         });
 

@@ -38,13 +38,13 @@ export class TranslationService extends Construct {
         props.restApiService.addMethod({
             method: "GET",
             lambda: getTranslationsLambda,
-            isAuthorized: true,
+            isAuthorized: false,
         })
 
         props.restApiService.addMethod({
             method: "POST",
             lambda: translationsLambda,
-            isAuthorized: true,
+            isAuthorized: true
         })
 
         new route53.ARecord(this, "ApiSubdomainRecord", {

@@ -25,6 +25,7 @@ export class TranslationStack extends cdk.NestedStack {
 
         const translationRestApiService = new RestApiService(this, "translationRestApi", {
             restApiName: "translationApi",
+            resourceName: "translations",
             domainName: props.domainName,
             apiSubDomain: props.apiSubDomain,
             certificate: props.certificate,

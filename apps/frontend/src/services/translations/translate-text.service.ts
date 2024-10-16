@@ -1,4 +1,4 @@
-import backendOutputs from '../../config/backendOutputs.json';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 import { TranslationRequest, TranslationResponse } from "@verbo/shared-types";
 
@@ -14,8 +14,6 @@ export const translateText = async ({
     inputText
 }: TranslateTextInput): Promise<TranslationResponse> => {
 
-    const { translationsApiBaseUrl } = backendOutputs;
-
     const translationRequest: TranslationRequest = {
         sourceLanguageCode: inputLanguage,
         targetLanguageCode: outputLanguage,
@@ -23,10 +21,16 @@ export const translateText = async ({
     };
 
     try {
-        const response = await fetch(`${translationsApiBaseUrl}/translations`, {
+
+        const session = await fetchAuthSession();
+        const jwtToken = session?.tokens?.idToken?.toString();
+        console.log("jwtToken from translateText():", jwtToken);
+
+        const response = await fetch(`https://api.verbotranslator.com/translations`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwtToken}`,
             },
             body: JSON.stringify(translationRequest),
         });
@@ -34,6 +38,7 @@ export const translateText = async ({
         if (!response.ok) {
             const errorBody = await response.text();
             console.error('Error response:', errorBody);
+            console.error('Error response status:', response);
             throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
         }
 

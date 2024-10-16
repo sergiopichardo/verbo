@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 
 import * as cdk from "aws-cdk-lib";
 import * as cognito from "aws-cdk-lib/aws-cognito";
+import * as iam from "aws-cdk-lib/aws-iam";
 
 
 interface AuthStackProps extends cdk.NestedStackProps {
@@ -63,6 +64,36 @@ export class AuthStack extends cdk.NestedStack {
                 },
             ],
         });
+
+        const authenticatedRole = new iam.Role(
+            this,
+            "CognitoDefaultAuthenticatedRole",
+            {
+                assumedBy: new iam.FederatedPrincipal(
+                    "cognito-identity.amazonaws.com",
+                    {
+                        StringEquals: {
+                            "cognito-identity.amazonaws.com:aud": identityPool.ref,
+                        },
+                        "ForAnyValue:StringLike": {
+                            "cognito-identity.amazonaws.com:amr": "authenticated",
+                        },
+                    },
+                    "sts:AssumeRoleWithWebIdentity"
+                ),
+            }
+        );
+
+        new cognito.CfnIdentityPoolRoleAttachment(
+            this,
+            "IdentityPoolRoleAttachment",
+            {
+                identityPoolId: identityPool.ref,
+                roles: {
+                    authenticated: authenticatedRole.roleArn,
+                },
+            }
+        );
 
         return identityPool;
     }
