@@ -90,6 +90,7 @@ export const handler: APIGatewayProxyHandler = async (
     };
 
     const tableObj: TranslationDBObject = {
+      username,
       requestId: context.awsRequestId,
       sourceLanguageCode,
       targetLanguageCode,
