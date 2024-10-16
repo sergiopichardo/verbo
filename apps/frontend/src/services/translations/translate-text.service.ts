@@ -1,5 +1,4 @@
-import { fetchAuthSession } from 'aws-amplify/auth';
-
+import { getJwtToken } from '../../lib/get-jwt-token';
 import { TranslationRequest, TranslationResponse } from "@verbo/shared-types";
 
 type TranslateTextInput = {
@@ -21,9 +20,7 @@ export const translateText = async ({
     };
 
     try {
-
-        const session = await fetchAuthSession();
-        const jwtToken = session?.tokens?.idToken?.toString();
+        const jwtToken = await getJwtToken();
         console.log("jwtToken from translateText():", jwtToken);
 
         const response = await fetch(`https://api.verbotranslator.com/translations`, {

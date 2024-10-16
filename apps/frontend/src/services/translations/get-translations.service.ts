@@ -1,9 +1,16 @@
 import { TranslationDBObject } from "@verbo/shared-types";
+import { getJwtToken } from "../../lib/get-jwt-token";
 
 export const getTranslations = async (): Promise<TranslationDBObject[]> => {
     try {
+        const jwtToken = await getJwtToken();
+        console.log("jwtToken from getTranslations():", jwtToken);
+
         const response = await fetch(`https://api.verbotranslator.com/translations`, {
-            method: 'GET'
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${jwtToken}`,
+            },
         });
 
         if (!response.ok) {
