@@ -18,7 +18,11 @@ export class DynamodbStack extends cdk.NestedStack {
     private _createTranslationsTable(props: DynamodbStackProps): dynamodb.TableV2 {
         const _table = new dynamodb.TableV2(this, `${props.appName}TranslationsTable`, {
             partitionKey: {
-                name: 'requestId',
+                name: 'username', // is used to identify all the requests that belong to a user
+                type: dynamodb.AttributeType.STRING
+            },
+            sortKey: {
+                name: 'requestId', // the requestId of the lambda function request (which is unique and identifies each translation)
                 type: dynamodb.AttributeType.STRING
             },
             removalPolicy: cdk.RemovalPolicy.DESTROY,

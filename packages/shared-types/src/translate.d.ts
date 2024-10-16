@@ -10,5 +10,6 @@ export type TranslationResponse = {
 }
 
 export type TranslationDBObject = TranslationRequest & TranslationResponse & {
+    username: string;
     requestId: string;
 }
