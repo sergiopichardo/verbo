@@ -110,7 +110,7 @@ export const handler: APIGatewayProxyHandler = async (
       timestamp: new Date().toISOString(),
     };
 
-    await translationsTableClient.saveTranslation(tableObj);
+    await translationsTableClient.saveUserTranslation(tableObj);
 
     return gateway.createSuccessJsonResponse(translationResponse);
 

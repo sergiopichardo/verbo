@@ -35,11 +35,19 @@ export class TranslationService extends Construct {
         const translationsLambda = this._createTranslationsLambda(props, [utilsLayer]);
         const getTranslationsLambda = this._createGetAllTranslationsLambda(props, [utilsLayer]);
 
+        // const getTranslationsNoAuthLambda = this._createGetTranslationsNoAuthLambda(props, [utilsLayer]);
+
         props.restApiService.addMethod({
             method: "GET",
             lambda: getTranslationsLambda,
-            isProtected: false,
+            isProtected: true,
         })
+
+        // props.restApiService.addMethod({
+        //     method: "GET",
+        //     lambda: getTranslationsNoAuthLambda,
+        //     isProtected: false,
+        // })
 
         props.restApiService.addMethod({
             method: "POST",
@@ -54,6 +62,33 @@ export class TranslationService extends Construct {
         });
     }
 
+    private _createGetTranslationsNoAuthLambda(
+        props: TranslationServiceProps,
+        layers: lambda.ILayerVersion[]
+    ): lambdaNodejs.NodejsFunction {
+
+        return new lambdaNodejs.NodejsFunction(this, "get-translations-no-auth", {
+            entry: findPath("lambdas/get-translations-no-auth/index.ts"),
+            handler: "handler",
+            layers: layers,
+            runtime: lambda.Runtime.NODEJS_20_X,
+            initialPolicy: [
+                new iam.PolicyStatement({
+                    actions: ["dynamodb:Query"],
+                    resources: [props.translationsTable.tableArn],
+                }),
+            ],
+            environment: {
+                TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
+                TRANSLATIONS_PARTITION_KEY: "username",
+                TRANSLATIONS_SORT_KEY: "requestId",
+            },
+            bundling: {
+                minify: true,
+                externalModules: ["/opt/nodejs/utils"], // TODO: change layer name to utils-layer
+            },
+        });
+    }
 
 
     private _createGetAllTranslationsLambda(
@@ -68,7 +103,7 @@ export class TranslationService extends Construct {
             runtime: lambda.Runtime.NODEJS_20_X,
             initialPolicy: [
                 new iam.PolicyStatement({
-                    actions: ["dynamodb:Scan"],
+                    actions: ["dynamodb:Query"],
                     resources: [props.translationsTable.tableArn],
                 }),
             ],

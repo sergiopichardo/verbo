@@ -27,7 +27,7 @@ export class TranslationsTable {
         this.sortKey = sortKey;
     }
 
-    async saveTranslation(translation: TranslationDBObject) {
+    async saveUserTranslation(translation: TranslationDBObject) {
         try {
             const createTranslationParams: PutCommandInput = {
                 TableName: this.tableName,
@@ -68,7 +68,7 @@ export class TranslationsTable {
         }
     }
 
-    async getTranslations() {
+    async getAllUserTranslations() {
         try {
             const getTranslationsParams: ScanCommandInput = {
                 TableName: this.tableName,

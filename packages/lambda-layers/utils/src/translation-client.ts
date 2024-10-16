@@ -21,7 +21,7 @@ export async function translate({
 
         if (!response.TranslatedText) {
             throw new Error("Translation failed: No translated text returned");
-        }   
+        }
 
         return response.TranslatedText;
     } catch (error) {
