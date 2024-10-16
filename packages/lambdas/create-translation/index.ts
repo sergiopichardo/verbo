@@ -1,19 +1,19 @@
-import { 
-  APIGatewayProxyEvent, 
-  APIGatewayProxyHandler, 
-  APIGatewayProxyResult, 
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyHandler,
+  APIGatewayProxyResult,
   Context,
 } from "aws-lambda";
 
-import { 
+import {
   TranslationDBObject,
-  TranslationRequest, 
+  TranslationRequest,
   TranslationResponse,
 } from "@verbo/shared-types";
 
-import { 
-  gateway, 
-  exceptions, 
+import {
+  gateway,
+  exceptions,
   translationClient,
   translationTable,
 } from '/opt/nodejs/utils';
@@ -39,16 +39,31 @@ if (!TRANSLATIONS_PARTITION_KEY) {
  * @returns a translation JSON response
  */
 export const handler: APIGatewayProxyHandler = async (
-  event: APIGatewayProxyEvent, 
+  event: APIGatewayProxyEvent,
   context: Context,
 ): Promise<APIGatewayProxyResult> => {
   try {
+
+    const claims = event.requestContext.authorizer?.claims;
+
+    if (!claims) {
+      throw new Error("User is not authenticated");
+    }
+
+    const username = claims['cognito:username'];
+
+    if (!username) {
+      throw new Error("Username does not exist");
+    }
+
+    console.log("USERNAME:", username);
+
     if (!event.body) {
       throw new exceptions.MissingRequestBodyException();
     }
 
     const body = JSON.parse(event.body) as TranslationRequest;
-    
+
     if (!body.sourceLanguageCode) {
       throw new exceptions.MissingParametersException("sourceLanguageCode is missing");
     }
@@ -60,7 +75,7 @@ export const handler: APIGatewayProxyHandler = async (
     if (!body.sourceText) {
       throw new exceptions.MissingParametersException("sourceText is missing");
     }
-    
+
     const { sourceLanguageCode, targetLanguageCode, sourceText } = body;
 
     const translatedText = await translationClient.translate({
@@ -96,7 +111,7 @@ export const handler: APIGatewayProxyHandler = async (
     } else {
       console.error('Unknown error in handler:', error);
     }
-    
+
     return gateway.createErrorJsonResponse("Unknown error");
   }
 };
