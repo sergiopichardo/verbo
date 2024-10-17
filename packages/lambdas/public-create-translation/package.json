@@ -1,0 +1,14 @@
+{
+  "name": "@verbo/public-create-translation",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.658.0",
+    "@aws-sdk/lib-dynamodb": "^3.658.0",
+    "@aws-sdk/util-dynamodb": "^3.658.0",
+    "@types/node": "20.11.19",
+    "@verbo/shared-types": "*",
+    "esbuild": "^0.24.0",
+    "ts-node": "^10.9.2"
+  }
+}
