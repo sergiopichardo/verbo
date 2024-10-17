@@ -68,7 +68,7 @@ export class TranslationsTable {
         }
     }
 
-    async getAllUserTranslations() {
+    async getAllPublicTranslations() {
         try {
             const getTranslationsParams: ScanCommandInput = {
                 TableName: this.tableName,

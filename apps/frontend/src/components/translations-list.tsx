@@ -15,9 +15,14 @@ export const TranslationsList = () => {
         setTranslations(data);
     };
 
-    // if (translations.length === 0) {
-    //     return <div>No translations yet</div>;
-    // }
+    if (translations.length === 0) {
+        return (
+            <div>
+                <p>No translations yet</p>
+                <Button onClick={handleFetchTranslations}>Fetch Translations</Button>
+            </div>
+        )
+    }
 
     return (
         <div className="flex flex-col space-y-2">

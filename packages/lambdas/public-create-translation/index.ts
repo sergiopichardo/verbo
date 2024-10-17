@@ -2,11 +2,9 @@ import {
     APIGatewayProxyEvent,
     APIGatewayProxyHandler,
     APIGatewayProxyResult,
-    Context,
 } from "aws-lambda";
 
 import {
-    TranslationDBObject,
     TranslationRequest,
     TranslationResponse,
 } from "@verbo/shared-types";
@@ -15,33 +13,7 @@ import {
     gateway,
     exceptions,
     translationClient,
-    translationsTable,
 } from '/opt/nodejs/utils';
-
-
-const TRANSLATIONS_TABLE_NAME = process.env.TRANSLATIONS_TABLE_NAME as string;
-
-const TRANSLATIONS_SORT_KEY = process.env.TRANSLATIONS_SORT_KEY as string;
-
-const TRANSLATIONS_PARTITION_KEY = process.env.TRANSLATIONS_PARTITION_KEY as string;
-
-if (!TRANSLATIONS_TABLE_NAME) {
-    throw new exceptions.MissingEnvironmentVariableException("TRANSLATIONS_TABLE_NAME");
-}
-
-if (!TRANSLATIONS_SORT_KEY) {
-    throw new exceptions.MissingEnvironmentVariableException("TRANSLATIONS_SORT_KEY");
-}
-
-if (!TRANSLATIONS_PARTITION_KEY) {
-    throw new exceptions.MissingEnvironmentVariableException("TRANSLATIONS_PARTITION_KEY");
-}
-
-const translationsTableClient = new translationsTable.TranslationsTable(
-    TRANSLATIONS_TABLE_NAME,
-    TRANSLATIONS_PARTITION_KEY,
-    TRANSLATIONS_SORT_KEY
-);
 
 /**
  * Create a translation
@@ -51,7 +23,6 @@ const translationsTableClient = new translationsTable.TranslationsTable(
  */
 export const handler: APIGatewayProxyHandler = async (
     event: APIGatewayProxyEvent,
-    context: Context,
 ): Promise<APIGatewayProxyResult> => {
     try {
 

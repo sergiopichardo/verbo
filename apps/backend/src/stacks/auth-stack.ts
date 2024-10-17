@@ -84,6 +84,21 @@ export class AuthStack extends cdk.NestedStack {
             }
         );
 
+        const unauthenticatedRole = new iam.Role(this, 'CognitoDefaultUnauthenticatedRole', {
+            assumedBy: new iam.FederatedPrincipal(
+                'cognito-identity.amazonaws.com',
+                {
+                    StringEquals: {
+                        'cognito-identity.amazonaws.com:aud': identityPool.ref,
+                    },
+                    'ForAnyValue:StringLike': {
+                        'cognito-identity.amazonaws.com:amr': 'unauthenticated',
+                    },
+                },
+                'sts:AssumeRoleWithWebIdentity'
+            ),
+        });
+
         new cognito.CfnIdentityPoolRoleAttachment(
             this,
             "IdentityPoolRoleAttachment",
@@ -91,6 +106,7 @@ export class AuthStack extends cdk.NestedStack {
                 identityPoolId: identityPool.ref,
                 roles: {
                     authenticated: authenticatedRole.roleArn,
+                    unauthenticated: unauthenticatedRole.roleArn,
                 },
             }
         );

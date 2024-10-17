@@ -32,29 +32,29 @@ export class TranslationService extends Construct {
         });
 
         // Lambdas 
-        const translationsLambda = this._createTranslationsLambda(props, [utilsLayer]);
-        const getTranslationsLambda = this._createGetAllTranslationsLambda(props, [utilsLayer]);
-        const getPublicTranslationsLambda = this._createGetPublicTranslationsLambda(props, [utilsLayer]);
+        const createAuthenticatedTranslationLambda = this._createTranslationsLambda(props, [utilsLayer]);
+        const getAllTranslationsLambda = this._createGetAllTranslationsLambda(props, [utilsLayer]);
+        const publicCreateTranslationLambda = this._createPublicCreateTranslationLambda([utilsLayer]);
 
         props.restApiService.addMethod({
             resource: props.restApiService.translationsResource,
             method: "GET",
-            lambda: getTranslationsLambda,
+            lambda: getAllTranslationsLambda,
             isProtected: true,
-        })
-
-        props.restApiService.addMethod({
-            resource: props.restApiService.publicTranslationsResource,
-            method: "GET",
-            lambda: getPublicTranslationsLambda,
-            isProtected: false,
         })
 
         props.restApiService.addMethod({
             resource: props.restApiService.translationsResource,
             method: "POST",
-            lambda: translationsLambda,
+            lambda: createAuthenticatedTranslationLambda,
             isProtected: true,
+        })
+
+        props.restApiService.addMethod({
+            resource: props.restApiService.publicTranslationsResource,
+            method: "POST",
+            lambda: publicCreateTranslationLambda,
+            isProtected: false,
         })
 
         new route53.ARecord(this, "ApiSubdomainRecord", {
@@ -64,34 +64,26 @@ export class TranslationService extends Construct {
         });
     }
 
-    private _createGetPublicTranslationsLambda(
-        props: TranslationServiceProps,
+    private _createPublicCreateTranslationLambda(
         layers: lambda.ILayerVersion[]
     ): lambdaNodejs.NodejsFunction {
-
-        return new lambdaNodejs.NodejsFunction(this, "public-get-translations", {
-            entry: findPath("lambdas/public-get-translations/index.ts"),
+        return new lambdaNodejs.NodejsFunction(this, "public-create-translation", {
+            entry: findPath("lambdas/public-create-translation/index.ts"),
             handler: "handler",
             layers: layers,
             runtime: lambda.Runtime.NODEJS_20_X,
             initialPolicy: [
                 new iam.PolicyStatement({
-                    actions: ["dynamodb:Scan"],
-                    resources: [props.translationsTable.tableArn],
+                    actions: ["translate:TranslateText"],
+                    resources: ["*"],
                 }),
             ],
-            environment: {
-                TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
-                TRANSLATIONS_PARTITION_KEY: "username",
-                TRANSLATIONS_SORT_KEY: "requestId",
-            },
             bundling: {
                 minify: true,
                 externalModules: ["/opt/nodejs/utils"], // TODO: change layer name to utils-layer
             },
         });
     }
-
 
     private _createGetAllTranslationsLambda(
         props: TranslationServiceProps,
@@ -166,6 +158,4 @@ export class TranslationService extends Construct {
             },
         });
     }
-
-
 }

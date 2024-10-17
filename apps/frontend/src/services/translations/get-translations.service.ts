@@ -1,6 +1,8 @@
 import { TranslationDBObject } from "@verbo/shared-types";
 import { getJwtToken } from "../../lib/get-jwt-token";
 
+
+
 export const getTranslations = async (): Promise<TranslationDBObject[]> => {
     try {
         const jwtToken = await getJwtToken();

@@ -10,6 +10,12 @@ export type TranslationResponse = {
 }
 
 export type TranslationDBObject = TranslationRequest & TranslationResponse & {
-    username: string;
+    username?: string;
     requestId: string;
+}
+
+export type TranslateTextInput = {
+    inputLanguage: string;
+    outputLanguage: string;
+    inputText: string;
 }

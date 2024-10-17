@@ -24,6 +24,9 @@ import { Input } from "./ui/input";
 import { translateText } from "@/services/translations/translate-text.service";
 import toast from "react-hot-toast";
 import { useState } from "react";
+import { getCurrentUser } from "aws-amplify/auth";
+import { createPublicTranslation } from "@/services/translations/create-public-translation";
+import { TranslateTextInput } from "@verbo/shared-types";
 
 
 type TranslationFormProps = {};
@@ -47,12 +50,31 @@ export default function TranslationForm(props: TranslationFormProps) {
     }
 
     try {
+
+      console.log("data", data);
       setIsLoading(true);
-      const translation = await translateText({
-        inputText: data.inputText,
+
+
+      const translationPayload: TranslateTextInput = {
         inputLanguage: data.inputLanguage,
         outputLanguage: data.outputLanguage,
-      });
+        inputText: data.inputText,
+      };
+
+      let user = null;
+      let translation = null;
+
+      try {
+        user = await getCurrentUser();
+
+        if (user) {
+          translation = await translateText(translationPayload);
+        } else {
+          throw new Error("User not logged in");
+        }
+      } catch (error) {
+        translation = await createPublicTranslation(translationPayload);
+      }
 
       if (!translation) {
         throw new Error("Error in translation");
@@ -60,6 +82,7 @@ export default function TranslationForm(props: TranslationFormProps) {
 
     } catch (error) {
       if (error instanceof Error) {
+        console.error("Error in translation", error);
         toast.error(error.message, {
           duration: 5000,
         });
