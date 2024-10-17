@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns';
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { getTranslations } from "@/services/translations/get-translations.service";
+import { TranslationItem } from "./translation-item";
 
 export const TranslationsList = () => {
 
@@ -30,13 +31,10 @@ export const TranslationsList = () => {
             <Button onClick={handleFetchTranslations}>Fetch Translations</Button>
 
             {translations.map((translation: TranslationDBObject) => (
-                <div key={translation.requestId} className="mt-8 p-4 border rounded-lg">
-                    <p><span className="font-semibold">Input</span>: {translation.sourceText}</p>
-                    <p><span className="font-semibold">Output</span>: {translation.targetText}</p>
-                    <p className="text-sm text-gray-500 mt-2">
-                        Translated at:{format(parseISO(translation.timestamp), 'PPpp')}
-                    </p>
-                </div>
+                <TranslationItem
+                    key={translation.requestId}
+                    translation={translation}
+                />
             ))}
         </div>
     );

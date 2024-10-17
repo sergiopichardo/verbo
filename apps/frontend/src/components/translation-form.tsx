@@ -25,7 +25,7 @@ import { translateText } from "@/services/translations/translate-text.service";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import { getCurrentUser } from "aws-amplify/auth";
-import { createPublicTranslation } from "@/services/translations/create-public-translation";
+import { createPublicTranslation } from "@/services/translations/create-public-translation.service";
 import { TranslateTextInput } from "@verbo/shared-types";
 
 

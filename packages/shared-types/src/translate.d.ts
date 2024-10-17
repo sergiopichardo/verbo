@@ -19,3 +19,8 @@ export type TranslateTextInput = {
     outputLanguage: string;
     inputText: string;
 }
+
+export type DeleteTranslationRequest = {
+    translationId: string;
+    userId: string;
+}

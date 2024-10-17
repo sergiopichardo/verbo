@@ -25,6 +25,8 @@ export const getTranslations = async (): Promise<TranslationDBObject[]> => {
 
         const translations = data.translations as TranslationDBObject[];
 
+        console.log("translations", translations);
+
         return translations.sort((a, b) => Date.parse(b.timestamp) - Date.parse(a.timestamp));
     } catch (error) {
         console.error("Fetch error:", error);
