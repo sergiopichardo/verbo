@@ -44,7 +44,7 @@ export class TranslationService extends Construct {
         })
 
         props.restApiService.addMethod({
-            resource: props.restApiService.publicResource,
+            resource: props.restApiService.publicTranslationsResource,
             method: "GET",
             lambda: getPublicTranslationsLambda,
             isProtected: false,

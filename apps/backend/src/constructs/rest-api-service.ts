@@ -18,7 +18,7 @@ export class RestApiService extends Construct {
     public restApi: apigateway.RestApi;
     public authorizer?: apigateway.CognitoUserPoolsAuthorizer;
     public translationsResource: apigateway.Resource;
-    public publicResource: apigateway.Resource;
+    public publicTranslationsResource: apigateway.Resource;
 
 
     constructor(scope: Construct, id: string, props: RestApiServiceProps) {
@@ -39,7 +39,7 @@ export class RestApiService extends Construct {
         });
 
         this.translationsResource = this.restApi.root.addResource(props.resourceName); // https://api.verbotranslator.com/translations
-        this.publicResource = this.translationsResource.addResource("public"); // https://api.verbotranslator.com/translations/public
+        this.publicTranslationsResource = this.translationsResource.addResource("public"); // https://api.verbotranslator.com/translations/public
 
         if (props.userPool) {
             this.authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, "CognitoAuthorizer", {
