@@ -34,22 +34,24 @@ export class TranslationService extends Construct {
         // Lambdas 
         const translationsLambda = this._createTranslationsLambda(props, [utilsLayer]);
         const getTranslationsLambda = this._createGetAllTranslationsLambda(props, [utilsLayer]);
-
-        // const getTranslationsNoAuthLambda = this._createGetTranslationsNoAuthLambda(props, [utilsLayer]);
+        const getPublicTranslationsLambda = this._createGetPublicTranslationsLambda(props, [utilsLayer]);
 
         props.restApiService.addMethod({
+            resource: props.restApiService.translationsResource,
             method: "GET",
             lambda: getTranslationsLambda,
             isProtected: true,
         })
 
-        // props.restApiService.addMethod({
-        //     method: "GET",
-        //     lambda: getTranslationsNoAuthLambda,
-        //     isProtected: false,
-        // })
+        props.restApiService.addMethod({
+            resource: props.restApiService.publicResource,
+            method: "GET",
+            lambda: getPublicTranslationsLambda,
+            isProtected: false,
+        })
 
         props.restApiService.addMethod({
+            resource: props.restApiService.translationsResource,
             method: "POST",
             lambda: translationsLambda,
             isProtected: true,
@@ -62,7 +64,7 @@ export class TranslationService extends Construct {
         });
     }
 
-    private _createGetTranslationsNoAuthLambda(
+    private _createGetPublicTranslationsLambda(
         props: TranslationServiceProps,
         layers: lambda.ILayerVersion[]
     ): lambdaNodejs.NodejsFunction {
@@ -74,7 +76,7 @@ export class TranslationService extends Construct {
             runtime: lambda.Runtime.NODEJS_20_X,
             initialPolicy: [
                 new iam.PolicyStatement({
-                    actions: ["dynamodb:Query"],
+                    actions: ["dynamodb:Scan"],
                     resources: [props.translationsTable.tableArn],
                 }),
             ],

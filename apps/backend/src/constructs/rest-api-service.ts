@@ -17,7 +17,9 @@ interface RestApiServiceProps extends cdk.NestedStackProps {
 export class RestApiService extends Construct {
     public restApi: apigateway.RestApi;
     public authorizer?: apigateway.CognitoUserPoolsAuthorizer;
-    private translationsResource: apigateway.Resource;
+    public translationsResource: apigateway.Resource;
+    public publicResource: apigateway.Resource;
+
 
     constructor(scope: Construct, id: string, props: RestApiServiceProps) {
         super(scope, id);
@@ -36,7 +38,8 @@ export class RestApiService extends Construct {
             },
         });
 
-        this.translationsResource = this.restApi.root.addResource(props.resourceName);
+        this.translationsResource = this.restApi.root.addResource(props.resourceName); // https://api.verbotranslator.com/translations
+        this.publicResource = this.translationsResource.addResource("public"); // https://api.verbotranslator.com/translations/public
 
         if (props.userPool) {
             this.authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, "CognitoAuthorizer", {
@@ -52,6 +55,7 @@ export class RestApiService extends Construct {
     }
 
     public addMethod(props: {
+        resource: apigateway.Resource,
         method: string,
         lambda: lambdaNodejs.NodejsFunction,
         isProtected?: boolean,
@@ -69,7 +73,7 @@ export class RestApiService extends Construct {
             }
         }
 
-        this.translationsResource.addMethod(
+        props.resource.addMethod(
             props.method,
             new apigateway.LambdaIntegration(props.lambda),
             options
