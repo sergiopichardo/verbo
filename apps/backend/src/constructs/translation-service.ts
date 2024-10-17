@@ -69,8 +69,8 @@ export class TranslationService extends Construct {
         layers: lambda.ILayerVersion[]
     ): lambdaNodejs.NodejsFunction {
 
-        return new lambdaNodejs.NodejsFunction(this, "get-translations-no-auth", {
-            entry: findPath("lambdas/get-translations-no-auth/index.ts"),
+        return new lambdaNodejs.NodejsFunction(this, "public-get-translations", {
+            entry: findPath("lambdas/public-get-translations/index.ts"),
             handler: "handler",
             layers: layers,
             runtime: lambda.Runtime.NODEJS_20_X,
