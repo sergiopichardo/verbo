@@ -37,7 +37,6 @@ export class TranslationService extends Construct {
         const publicCreateTranslationLambda = this._createPublicCreateTranslationLambda([utilsLayer]);
         const deleteTranslationLambda = this._createDeleteTranslationLambda(props, [utilsLayer]);
 
-        
         props.restApiService.addMethod({
             resource: props.restApiService.translationsResource,
             method: "GET",
@@ -84,10 +83,18 @@ export class TranslationService extends Construct {
             runtime: lambda.Runtime.NODEJS_20_X,
             initialPolicy: [
                 new iam.PolicyStatement({
-                    actions: ["dynamodb:DeleteItem"],
+                    actions: [
+                        "dynamodb:GetItem",
+                        "dynamodb:DeleteItem",
+                    ],
                     resources: [props.translationsTable.tableArn],
                 }),
             ],
+            environment: {
+                TRANSLATIONS_TABLE_NAME: props.translationsTable.tableName,
+                TRANSLATIONS_PARTITION_KEY: "username",
+                TRANSLATIONS_SORT_KEY: "requestId",
+            },
             bundling: {
                 minify: true,
                 externalModules: ["/opt/nodejs/utils"], // TODO: change layer name to utils-layer
