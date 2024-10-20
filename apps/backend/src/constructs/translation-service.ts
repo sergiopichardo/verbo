@@ -36,6 +36,8 @@ export class TranslationService extends Construct {
         const getAllTranslationsLambda = this._createGetAllTranslationsLambda(props, [utilsLayer]);
         const publicCreateTranslationLambda = this._createPublicCreateTranslationLambda([utilsLayer]);
         const deleteTranslationLambda = this._createDeleteTranslationLambda(props, [utilsLayer]);
+
+        
         props.restApiService.addMethod({
             resource: props.restApiService.translationsResource,
             method: "GET",

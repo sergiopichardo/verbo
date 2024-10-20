@@ -6,7 +6,6 @@ import { useState } from "react";
 import { getTranslations } from "@/services/translations/get-translations.service";
 import { TranslationItem } from "./translation-item";
 import { deleteTranslation } from "@/services/translations/delete-translation.service";
-import { getCurrentUser } from "aws-amplify/auth";
 
 export const TranslationsList = () => {
 
@@ -21,6 +20,8 @@ export const TranslationsList = () => {
         await deleteTranslation({
             translationId: translationId,
         });
+
+        setTranslations(translations.filter(translation => translation.requestId !== translationId));
     };
 
     if (translations.length === 0) {
