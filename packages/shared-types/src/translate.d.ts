@@ -22,5 +22,4 @@ export type TranslateTextInput = {
 
 export type DeleteTranslationRequest = {
     translationId: string;
-    userId: string;
 }

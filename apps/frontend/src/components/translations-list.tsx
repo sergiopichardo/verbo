@@ -1,11 +1,12 @@
 "use client"
 
 import { TranslationDBObject } from "@verbo/shared-types";
-import { format, parseISO } from 'date-fns';
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { getTranslations } from "@/services/translations/get-translations.service";
 import { TranslationItem } from "./translation-item";
+import { deleteTranslation } from "@/services/translations/delete-translation.service";
+import { getCurrentUser } from "aws-amplify/auth";
 
 export const TranslationsList = () => {
 
@@ -14,6 +15,12 @@ export const TranslationsList = () => {
     const handleFetchTranslations = async () => {
         const data = await getTranslations();
         setTranslations(data);
+    };
+
+    const handleDeleteTranslation = async (translationId: string) => {
+        await deleteTranslation({
+            translationId: translationId,
+        });
     };
 
     if (translations.length === 0) {
@@ -34,6 +41,7 @@ export const TranslationsList = () => {
                 <TranslationItem
                     key={translation.requestId}
                     translation={translation}
+                    onDelete={handleDeleteTranslation}
                 />
             ))}
         </div>

@@ -1,22 +1,19 @@
+import { getJwtToken } from "@/lib/get-jwt-token";
 import { DeleteTranslationRequest } from "@verbo/shared-types";
 
 export const deleteTranslation = async ({
-    translationId,
-    userId
+    translationId
 }: DeleteTranslationRequest): Promise<void> => {
 
-    const translationRequest = {
-        translationId: translationId,
-        userId: userId
-    }
-
     try {
+        const token = await getJwtToken();
         const response = await fetch(`https://api.verbotranslator.com/translations`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify(translationRequest),
+            body: JSON.stringify({ translationId }),
         });
 
         if (!response.ok) {

@@ -87,12 +87,13 @@ export class TranslationsTable {
         }
     }
 
-    async deleteTranslation(translationId: string) {
+    async deleteTranslation(translationId: string, userId: string) {
         try {
             const deleteTranslationParams: DeleteCommandInput = {
                 TableName: this.tableName,
                 Key: {
-                    [this.partitionKey]: translationId
+                    [this.partitionKey]: userId,
+                    [this.sortKey]: translationId
                 }
             }
 

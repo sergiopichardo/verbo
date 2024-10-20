@@ -35,7 +35,7 @@ export class TranslationService extends Construct {
         const createAuthenticatedTranslationLambda = this._createTranslationsLambda(props, [utilsLayer]);
         const getAllTranslationsLambda = this._createGetAllTranslationsLambda(props, [utilsLayer]);
         const publicCreateTranslationLambda = this._createPublicCreateTranslationLambda([utilsLayer]);
-
+        const deleteTranslationLambda = this._createDeleteTranslationLambda(props, [utilsLayer]);
         props.restApiService.addMethod({
             resource: props.restApiService.translationsResource,
             method: "GET",
@@ -51,6 +51,13 @@ export class TranslationService extends Construct {
         })
 
         props.restApiService.addMethod({
+            resource: props.restApiService.translationsResource,
+            method: "DELETE",
+            lambda: deleteTranslationLambda,
+            isProtected: true,
+        })
+
+        props.restApiService.addMethod({
             resource: props.restApiService.publicTranslationsResource,
             method: "POST",
             lambda: publicCreateTranslationLambda,
@@ -61,6 +68,28 @@ export class TranslationService extends Construct {
             zone: props.hostedZone,
             recordName: `api.${props.domainName}`,
             target: route53.RecordTarget.fromAlias(new route53Targets.ApiGateway(props.restApiService.restApi)),
+        });
+    }
+
+    private _createDeleteTranslationLambda(
+        props: TranslationServiceProps,
+        layers: lambda.ILayerVersion[]
+    ): lambdaNodejs.NodejsFunction {
+        return new lambdaNodejs.NodejsFunction(this, "delete-translation", {
+            entry: findPath("lambdas/delete-translation/index.ts"),
+            handler: "handler",
+            layers: layers,
+            runtime: lambda.Runtime.NODEJS_20_X,
+            initialPolicy: [
+                new iam.PolicyStatement({
+                    actions: ["dynamodb:DeleteItem"],
+                    resources: [props.translationsTable.tableArn],
+                }),
+            ],
+            bundling: {
+                minify: true,
+                externalModules: ["/opt/nodejs/utils"], // TODO: change layer name to utils-layer
+            },
         });
     }
 
