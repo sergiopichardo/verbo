@@ -5,13 +5,15 @@
  * @returns The value of the property if found, otherwise undefined.
  */
 export const findNestedProperty = (objectToSearch: Record<string, any>, targetPropertyName: string): any | undefined => {
+    // Iterate over the object's properties
     for (const [key, value] of Object.entries(objectToSearch)) {
         // Base case: found the target property
         if (key === targetPropertyName) {
             return value;
         }
+
+        // Recursive case: the value is an object
         if (value && typeof value === 'object') {
-            // Recursive case
             const result = findNestedProperty(value, targetPropertyName);
 
             // Found the property in a nested object
