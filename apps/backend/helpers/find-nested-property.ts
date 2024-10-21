@@ -1,19 +1,26 @@
+/**
+ * Finds a nested property in an object.
+ * @param objectToSearch - The object to search.
+ * @param targetPropertyName - The name of the property to find.
+ * @returns The value of the property if found, otherwise undefined.
+ */
+export const findNestedProperty = (objectToSearch: Record<string, any>, targetPropertyName: string): any | undefined => {
+    for (const [key, value] of Object.entries(objectToSearch)) {
+        // Base case: found the target property
+        if (key === targetPropertyName) {
+            return value;
+        }
+        if (value && typeof value === 'object') {
+            // Recursive case
+            const result = findNestedProperty(value, targetPropertyName);
 
-export const findNestedProperty = (objectToSearch: any, targetPropertyName: string): string | undefined => {
-    for (const currentPropertyName in objectToSearch) {
-        const currentPropertyValue = objectToSearch[currentPropertyName];
-
-        if (typeof currentPropertyValue === 'object' && currentPropertyValue !== null) {
-            const nestedResult = findNestedProperty(currentPropertyValue, targetPropertyName);
-            if (nestedResult !== undefined) {
-                return nestedResult;
+            // Found the property in a nested object
+            if (result !== undefined) {
+                return result;
             }
-        } else if (currentPropertyName === targetPropertyName) {
-            return currentPropertyValue;
         }
     }
+
+    // Property not found
     return undefined;
 };
-
-
-
