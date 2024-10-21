@@ -84,7 +84,7 @@ export class TranslationService extends Construct {
             initialPolicy: [
                 new iam.PolicyStatement({
                     actions: [
-                        "dynamodb:GetItem",
+                        "dynamodb:GetItem", // TODO: remove this later, not needed
                         "dynamodb:DeleteItem",
                     ],
                     resources: [props.translationsTable.tableArn],

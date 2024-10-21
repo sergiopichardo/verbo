@@ -1,5 +1,5 @@
 
-export const findNestedProperty = (objectToSearch: any, targetPropertyName: string): any => {
+export const findNestedProperty = (objectToSearch: any, targetPropertyName: string): string | undefined => {
     for (const currentPropertyName in objectToSearch) {
         const currentPropertyValue = objectToSearch[currentPropertyName];
 
@@ -14,3 +14,6 @@ export const findNestedProperty = (objectToSearch: any, targetPropertyName: stri
     }
     return undefined;
 };
+
+
+
