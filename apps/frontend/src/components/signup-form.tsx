@@ -66,7 +66,14 @@ export default function SignUpForm({ onAuthStepChange, setEmail }: ISignUpFormPr
 
         } catch (error) {
             if (error instanceof AuthError) {
-                toast.error("Error signing up");
+                if (error.name === "UsernameExistsException") {
+                    form.setError("email", {
+                        type: "custom",
+                        message: "An account with this email address already exists"
+                    });
+                } else {
+                    toast.error("Error signing up");
+                }
             }
         } finally {
             form.reset();

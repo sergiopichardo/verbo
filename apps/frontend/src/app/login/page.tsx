@@ -1,6 +1,6 @@
 "use client"
 
-import { getCurrentUser, signIn, signOut } from "aws-amplify/auth"
+import { AuthError, getCurrentUser, signIn, signOut } from "aws-amplify/auth"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useEffect, useState } from 'react'
@@ -22,6 +22,7 @@ import {
 } from "@/schema/authentication.schema";
 
 import Link from "next/link";
+import toast from "react-hot-toast"
 
 const LogInForm = () => {
     const [isLoading, setIsLoading] = useState(false)
@@ -34,28 +35,41 @@ const LogInForm = () => {
         },
     })
 
-    useEffect(() => {
-        setIsLoading(true)
-    }, [])
-
     const onSubmit = async (data: TSignInForm) => {
+        setIsLoading(true);
+
         try {
             await signIn({
                 username: data.email,
-                password: data.password
+                password: data.password,
+                options: {
+                    usernameAttributes: {
+                        email: data.email
+                    }
+                }
             });
-            // Handle successful sign-in
+
         } catch (error) {
-            console.error("Error signing in:", error)
-            // Handle sign-in error
+            setIsLoading(false);
+            if (error instanceof AuthError) {
+                if (error.name === "UserNotFoundException") {
+                    form.setError("email", {
+                        type: "custom",
+                        message: "User not found"
+                    });
+                } else if (error.name === "NotAuthorizedException") {
+                    form.setError("password", {
+                        type: "custom",
+                        message: "Invalid username or password"
+                    });
+                } else {
+                    toast.error("Error signing in");
+                }
+            }
         } finally {
             form.reset();
             setIsLoading(false);
         }
-    }
-
-    if (!isLoading) {
-        return <div>Loading ...</div> // or a loading indicator
     }
 
     return (
@@ -83,13 +97,18 @@ const LogInForm = () => {
                             <FormItem>
                                 <FormLabel>Password</FormLabel>
                                 <FormControl>
-                                    <Input type="password" {...field} />
+                                    <Input type="text" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
                     />
-                    <Button type="submit">Sign In</Button>
+                    <Button
+                        type="submit"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Signing in..." : "Sign In"}
+                    </Button>
                 </form>
             </Form>
             <div className="mt-4">
@@ -127,9 +146,6 @@ export default function LogInPage() {
         fetchUser();
     }, [])
 
-    // if (!user) {
-    //     return <div>Loading ...</div> // or a loading indicator
-    // }
 
     if (user) {
         return <LogOut />
