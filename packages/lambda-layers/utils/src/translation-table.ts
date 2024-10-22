@@ -98,6 +98,7 @@ export class TranslationsTable {
             }
 
             const command = new DeleteCommand(deleteTranslationParams);
+
             await this.client.send(command);
         } catch (error) {
             throw error;

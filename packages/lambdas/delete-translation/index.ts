@@ -73,9 +73,6 @@ export const handler: APIGatewayProxyHandler = async (
     }
 
     const translationId = body.translationId;
-    if (!translationId) {
-      throw new exceptions.MissingParametersException("translationId is missing");
-    }
 
     await translationsTableClient.deleteTranslation(translationId, username);
 
