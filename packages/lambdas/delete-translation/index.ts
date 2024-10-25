@@ -68,7 +68,10 @@ export const handler: APIGatewayProxyHandler = async (
 
     const translationId = body.translationId;
 
-    await translationsTableClient.deleteTranslation(translationId, username);
+    await translationsTableClient.deleteTranslation({
+      requestId: translationId,
+      username: username
+    });
 
     return gateway.createSuccessJsonResponse({});
 

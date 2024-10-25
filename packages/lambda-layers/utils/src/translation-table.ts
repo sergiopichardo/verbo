@@ -1,4 +1,4 @@
-import { ITranslationResult } from "@verbo/shared-types"
+import { ITranslationResult, ITranslationPrimaryKey } from "@verbo/shared-types"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
     DynamoDBDocumentClient,
@@ -87,13 +87,13 @@ export class TranslationsTable {
         }
     }
 
-    async deleteTranslation(translationId: string, userId: string) {
+    async deleteTranslation({ requestId, username }: ITranslationPrimaryKey) {
         try {
             const deleteTranslationParams: DeleteCommandInput = {
                 TableName: this.tableName,
                 Key: {
-                    [this.partitionKey]: userId,
-                    [this.sortKey]: translationId
+                    [this.partitionKey]: username,
+                    [this.sortKey]: requestId
                 }
             }
 

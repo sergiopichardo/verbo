@@ -9,10 +9,12 @@ export type ITranslationResponse = {
     targetText: string;
 }
 
-export type ITranslationResult = ITranslationRequest & ITranslationResponse & {
-    username?: string;
+export type ITranslationPrimaryKey = {
+    username: string;
     requestId: string;
 }
+
+export type ITranslationResult = ITranslationRequest & ITranslationResponse & ITranslationPrimaryKey;
 
 export type ITranslateTextInput = {
     inputLanguage: string;
