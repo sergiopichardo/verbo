@@ -12,6 +12,7 @@ import {
   gateway,
   exceptions,
   translationsTable,
+  cognitoUtils,
 } from '/opt/nodejs/utils';
 
 
@@ -50,16 +51,9 @@ export const handler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
 
-    const claims = event.requestContext.authorizer?.claims;
-
-    if (!claims) {
-      throw new Error("User is not authenticated");
-    }
-
-    const username = claims['cognito:username'];
-
+    const username = cognitoUtils.getCognitoUsername(event);
     if (!username) {
-      throw new Error("Username does not exist");
+      throw new exceptions.UnauthorizedException("User is not authenticated");
     }
 
     if (!event.body) {

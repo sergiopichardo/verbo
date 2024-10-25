@@ -28,3 +28,8 @@ export class MissingTableNameException extends Error {
   }
 }
 
+export class UnauthorizedException extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}

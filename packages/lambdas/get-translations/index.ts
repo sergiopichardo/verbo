@@ -8,7 +8,12 @@ import {
     ITranslationResult
 } from "@verbo/shared-types";
 
-import { exceptions, translationsTable } from "/opt/nodejs/utils"
+import {
+    exceptions,
+    translationsTable,
+    cognitoUtils
+} from "/opt/nodejs/utils";
+
 import { gateway } from "/opt/nodejs/utils";
 
 
@@ -43,24 +48,13 @@ const translationsTableClient = new translationsTable.TranslationsTable(
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
 
-        const claims = event.requestContext.authorizer?.claims;
-        console.log('claims:', claims);
-
-        if (!claims) {
-            throw new Error("User is not authenticated");
-        }
-
-        const username = claims['cognito:username'];
+        const username = cognitoUtils.getCognitoUsername(event);
 
         if (!username) {
-            throw new Error("Username does not exist");
+            throw new exceptions.UnauthorizedException("User is not authenticated");
         }
 
-        console.log("USERNAME:", username);
-
         const translations = await translationsTableClient.queryTranslationsByUsername(username) as ITranslationResult[];
-
-        console.log("TEMP translations:", translations);
 
         return gateway.createSuccessJsonResponse({ translations });
 

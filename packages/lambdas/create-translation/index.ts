@@ -16,7 +16,9 @@ import {
   exceptions,
   translationClient,
   translationsTable,
+  cognitoUtils,
 } from '/opt/nodejs/utils';
+
 
 
 const TRANSLATIONS_TABLE_NAME = process.env.TRANSLATIONS_TABLE_NAME as string;
@@ -55,19 +57,11 @@ export const handler: APIGatewayProxyHandler = async (
 ): Promise<APIGatewayProxyResult> => {
   try {
 
-    const claims = event.requestContext.authorizer?.claims;
-
-    if (!claims) {
-      throw new Error("User is not authenticated");
-    }
-
-    const username = claims['cognito:username'];
+    const username = cognitoUtils.getCognitoUsername(event);
 
     if (!username) {
-      throw new Error("Username does not exist");
+      throw new Error("User is not authenticated");
     }
-
-    console.log("USERNAME:", username);
 
     if (!event.body) {
       throw new exceptions.MissingRequestBodyException();
