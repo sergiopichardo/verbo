@@ -1,7 +1,7 @@
 import { getJwtToken } from '../../lib/get-jwt-token';
-import { TranslationRequest, TranslationResponse } from "@verbo/shared-types";
+import { ITranslationRequest, ITranslationResponse } from "@verbo/shared-types";
 
-type TranslateTextInput = {
+type ITranslateTextInput = {
     inputLanguage: string;
     outputLanguage: string;
     inputText: string;
@@ -11,9 +11,9 @@ export const translateText = async ({
     inputLanguage,
     outputLanguage,
     inputText
-}: TranslateTextInput): Promise<TranslationResponse> => {
+}: ITranslateTextInput): Promise<ITranslationResponse> => {
 
-    const translationRequest: TranslationRequest = {
+    const ITranslationRequest: ITranslationRequest = {
         sourceLanguageCode: inputLanguage,
         targetLanguageCode: outputLanguage,
         sourceText: inputText
@@ -29,7 +29,7 @@ export const translateText = async ({
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${jwtToken}`,
             },
-            body: JSON.stringify(translationRequest),
+            body: JSON.stringify(ITranslationRequest),
         });
 
         if (!response.ok) {
@@ -39,8 +39,8 @@ export const translateText = async ({
             throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
         }
 
-        const translationResponse: TranslationResponse = await response.json();
-        return translationResponse;
+        const ITranslationResponse: ITranslationResponse = await response.json();
+        return ITranslationResponse;
 
     } catch (error) {
         console.error("Fetch error:", error);

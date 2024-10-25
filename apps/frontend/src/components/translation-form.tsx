@@ -26,7 +26,7 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import { getCurrentUser } from "aws-amplify/auth";
 import { createPublicTranslation } from "@/services/translations/create-public-translation.service";
-import { TranslateTextInput } from "@verbo/shared-types";
+import { ITranslateTextInput } from "@verbo/shared-types";
 
 
 type TranslationFormProps = {};
@@ -55,7 +55,7 @@ export default function TranslationForm(props: TranslationFormProps) {
       setIsLoading(true);
 
 
-      const translationPayload: TranslateTextInput = {
+      const translationPayload: ITranslateTextInput = {
         inputLanguage: data.inputLanguage,
         outputLanguage: data.outputLanguage,
         inputText: data.inputText,

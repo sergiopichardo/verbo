@@ -1,6 +1,6 @@
 "use client"
 
-import { TranslationDBObject } from "@verbo/shared-types";
+import { ITranslationResult } from "@verbo/shared-types";
 import { Button } from "./ui/button";
 import { useState } from "react";
 import { getTranslations } from "@/services/translations/get-translations.service";
@@ -9,7 +9,7 @@ import { deleteTranslation } from "@/services/translations/delete-translation.se
 
 export const TranslationsList = () => {
 
-    const [translations, setTranslations] = useState<TranslationDBObject[]>([]);
+    const [translations, setTranslations] = useState<ITranslationResult[]>([]);
 
     const handleFetchTranslations = async () => {
         const data = await getTranslations();
@@ -38,7 +38,7 @@ export const TranslationsList = () => {
             <h2 className="text-2xl font-semibold">Translations</h2>
             <Button onClick={handleFetchTranslations}>Fetch Translations</Button>
 
-            {translations.map((translation: TranslationDBObject) => (
+            {translations.map((translation: ITranslationResult) => (
                 <TranslationItem
                     key={translation.requestId}
                     translation={translation}

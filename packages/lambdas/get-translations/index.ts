@@ -5,7 +5,7 @@ import {
 } from "aws-lambda";
 
 import {
-    TranslationDBObject
+    ITranslationResult
 } from "@verbo/shared-types";
 
 import { exceptions, translationsTable } from "/opt/nodejs/utils"
@@ -58,7 +58,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
         console.log("USERNAME:", username);
 
-        const translations = await translationsTableClient.queryTranslationsByUsername(username) as TranslationDBObject[];
+        const translations = await translationsTableClient.queryTranslationsByUsername(username) as ITranslationResult[];
 
         console.log("TEMP translations:", translations);
 

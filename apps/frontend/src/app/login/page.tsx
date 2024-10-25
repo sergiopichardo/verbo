@@ -49,6 +49,8 @@ const LogInForm = () => {
                 }
             });
 
+            setIsLoading(false);
+
         } catch (error) {
             setIsLoading(false);
             if (error instanceof AuthError) {
@@ -67,8 +69,8 @@ const LogInForm = () => {
                 }
             }
         } finally {
-            form.reset();
-            setIsLoading(false);
+            // form.reset();
+            // setIsLoading(false);
         }
     }
 

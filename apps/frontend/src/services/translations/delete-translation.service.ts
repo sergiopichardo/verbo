@@ -1,9 +1,9 @@
 import { getJwtToken } from "@/lib/get-jwt-token";
-import { DeleteTranslationRequest } from "@verbo/shared-types";
+import { DeleteITranslationRequest } from "@verbo/shared-types";
 
 export const deleteTranslation = async ({
     translationId
-}: DeleteTranslationRequest): Promise<void> => {
+}: DeleteITranslationRequest): Promise<void> => {
 
     try {
         const token = await getJwtToken();

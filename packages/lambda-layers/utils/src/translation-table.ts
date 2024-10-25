@@ -1,4 +1,4 @@
-import { TranslationDBObject } from "@verbo/shared-types"
+import { ITranslationResult } from "@verbo/shared-types"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
     DynamoDBDocumentClient,
@@ -27,7 +27,7 @@ export class TranslationsTable {
         this.sortKey = sortKey;
     }
 
-    async saveUserTranslation(translation: TranslationDBObject) {
+    async saveUserTranslation(translation: ITranslationResult) {
         try {
             const createTranslationParams: PutCommandInput = {
                 TableName: this.tableName,
@@ -62,7 +62,7 @@ export class TranslationsTable {
                 return []
             }
 
-            return response.Items as TranslationDBObject[];
+            return response.Items as ITranslationResult[];
         } catch (error) {
             throw error;
         }
@@ -81,7 +81,7 @@ export class TranslationsTable {
                 return []
             }
 
-            return response.Items as TranslationDBObject[];
+            return response.Items as ITranslationResult[];
         } catch (error) {
             throw error;
         }

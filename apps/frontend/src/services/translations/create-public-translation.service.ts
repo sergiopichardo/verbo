@@ -1,12 +1,12 @@
-import { TranslationRequest, TranslationResponse, TranslateTextInput } from "@verbo/shared-types";
+import { ITranslationRequest, ITranslationResponse, ITranslateTextInput } from "@verbo/shared-types";
 
 export const createPublicTranslation = async ({
     inputLanguage,
     outputLanguage,
     inputText
-}: TranslateTextInput): Promise<TranslationResponse> => {
+}: ITranslateTextInput): Promise<ITranslationResponse> => {
 
-    const translationRequest: TranslationRequest = {
+    const ITranslationRequest: ITranslationRequest = {
         sourceLanguageCode: inputLanguage,
         targetLanguageCode: outputLanguage,
         sourceText: inputText
@@ -18,7 +18,7 @@ export const createPublicTranslation = async ({
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(translationRequest),
+            body: JSON.stringify(ITranslationRequest),
         });
 
         if (!response.ok) {
@@ -27,9 +27,9 @@ export const createPublicTranslation = async ({
             throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
         }
 
-        const translationResponse: TranslationResponse = await response.json();
-        console.log("public translations:", translationResponse);
-        return translationResponse;
+        const ITranslationResponse: ITranslationResponse = await response.json();
+        console.log("public translations:", ITranslationResponse);
+        return ITranslationResponse;
 
     } catch (error) {
         console.error("Fetch error:", error);

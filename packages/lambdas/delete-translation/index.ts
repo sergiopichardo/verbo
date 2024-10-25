@@ -5,7 +5,7 @@ import {
 } from "aws-lambda";
 
 import {
-  DeleteTranslationRequest,
+  DeleteITranslationRequest,
 } from "@verbo/shared-types";
 
 import {
@@ -66,7 +66,7 @@ export const handler: APIGatewayProxyHandler = async (
       throw new exceptions.MissingRequestBodyException();
     }
 
-    const body = JSON.parse(event.body) as DeleteTranslationRequest;
+    const body = JSON.parse(event.body) as DeleteITranslationRequest;
 
     if (!body.translationId) {
       throw new exceptions.MissingParametersException("translationId is missing");

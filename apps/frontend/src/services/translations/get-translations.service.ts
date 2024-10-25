@@ -1,9 +1,9 @@
-import { TranslationDBObject } from "@verbo/shared-types";
+import { ITranslationResult } from "@verbo/shared-types";
 import { getJwtToken } from "../../lib/get-jwt-token";
 
 
 
-export const getTranslations = async (): Promise<TranslationDBObject[]> => {
+export const getTranslations = async (): Promise<ITranslationResult[]> => {
     try {
         const jwtToken = await getJwtToken();
         console.log("jwtToken from getTranslations():", jwtToken);
@@ -23,7 +23,7 @@ export const getTranslations = async (): Promise<TranslationDBObject[]> => {
 
         const data = await response.json();
 
-        const translations = data.translations as TranslationDBObject[];
+        const translations = data.translations as ITranslationResult[];
 
         console.log("translations", translations);
 

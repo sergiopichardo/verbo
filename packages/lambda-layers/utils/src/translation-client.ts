@@ -1,11 +1,11 @@
 import { TranslateClient, TranslateTextCommand, TranslateTextCommandOutput } from "@aws-sdk/client-translate";
-import { TranslationRequest } from "@verbo/shared-types";
+import { ITranslationRequest } from "@verbo/shared-types";
 
 export async function translate({
     sourceLanguageCode,
     targetLanguageCode,
     sourceText
-}: TranslationRequest): Promise<string> {
+}: ITranslationRequest): Promise<string> {
     const translationClient = new TranslateClient();
 
     const translationParams = {

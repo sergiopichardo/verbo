@@ -1,11 +1,11 @@
-import { TranslationDBObject } from "@verbo/shared-types";
+import { ITranslationResult } from "@verbo/shared-types";
 import { format, parseISO } from 'date-fns';
 
 import { X } from "lucide-react";
 
 
 interface TranslationItemProps {
-    translation: TranslationDBObject;
+    translation: ITranslationResult;
     onDelete: (translationId: string) => void;
 }
 

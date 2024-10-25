@@ -6,9 +6,9 @@ import {
 } from "aws-lambda";
 
 import {
-  TranslationDBObject,
-  TranslationRequest,
-  TranslationResponse,
+  ITranslationResult,
+  ITranslationRequest,
+  ITranslationResponse,
 } from "@verbo/shared-types";
 
 import {
@@ -73,7 +73,7 @@ export const handler: APIGatewayProxyHandler = async (
       throw new exceptions.MissingRequestBodyException();
     }
 
-    const body = JSON.parse(event.body) as TranslationRequest;
+    const body = JSON.parse(event.body) as ITranslationRequest;
 
     if (!body.sourceLanguageCode) {
       throw new exceptions.MissingParametersException("sourceLanguageCode is missing");
@@ -95,12 +95,12 @@ export const handler: APIGatewayProxyHandler = async (
       sourceText
     });
 
-    const translationResponse: TranslationResponse = {
+    const ITranslationResponse: ITranslationResponse = {
       timestamp: new Date().toISOString(),
       targetText: translatedText,
     };
 
-    const tableObj: TranslationDBObject = {
+    const tableObj: ITranslationResult = {
       username,
       requestId: context.awsRequestId,
       sourceLanguageCode,
@@ -112,7 +112,7 @@ export const handler: APIGatewayProxyHandler = async (
 
     await translationsTableClient.saveUserTranslation(tableObj);
 
-    return gateway.createSuccessJsonResponse(translationResponse);
+    return gateway.createSuccessJsonResponse(ITranslationResponse);
 
   } catch (error: unknown) {
     if (error instanceof Error) {
