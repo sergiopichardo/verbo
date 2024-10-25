@@ -87,19 +87,20 @@ export class TranslationsTable {
         }
     }
 
-    async deleteTranslation({ requestId, username }: ITranslationPrimaryKey) {
+    async deleteTranslation(item: ITranslationPrimaryKey) {
         try {
             const deleteTranslationParams: DeleteCommandInput = {
                 TableName: this.tableName,
                 Key: {
-                    [this.partitionKey]: username,
-                    [this.sortKey]: requestId
+                    [this.partitionKey]: item.username,
+                    [this.sortKey]: item.requestId
                 }
             }
 
             const command = new DeleteCommand(deleteTranslationParams);
 
             await this.client.send(command);
+            return item;
         } catch (error) {
             throw error;
         }
