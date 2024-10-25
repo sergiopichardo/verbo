@@ -54,7 +54,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
             throw new exceptions.UnauthorizedException("User is not authenticated");
         }
 
-        const translations = await translationsTableClient.queryTranslationsByUsername(username) as ITranslationResult[];
+        const translations = await translationsTableClient.queryTranslationsByUsername({
+            username: username
+        }) as ITranslationResult[];
 
         return gateway.createSuccessJsonResponse({ translations });
 

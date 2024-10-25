@@ -41,7 +41,7 @@ export class TranslationsTable {
         }
     }
 
-    async queryTranslationsByUsername(username: string) {
+    async queryTranslationsByUsername({ username }: Pick<ITranslationPrimaryKey, "username">) {
         try {
             const getTranslationsParams: QueryCommandInput = {
                 TableName: this.tableName,
