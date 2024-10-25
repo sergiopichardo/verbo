@@ -6,9 +6,9 @@ Verbo Translator is an app that helps users learn new languages by translating t
 
 ![Architecture Diagram](verbo-architecture-diagram.png)
 
-## Tech Stack 
-- Frontend: TypeScript, Next.js, Tailwind CSS, Shadcn UI, React Hook Form, Zustand
-- Backend: AWS Lambda, API Gateway, DynamoDB, Cognito, Amazon Translate, Amazon Polly
+## Tech Stack at a Glance
+- **Frontend**: TypeScript, Next.js, Tailwind CSS, Shadcn UI, React Hook Form, Zustand
+- **Backend**: AWS Lambda, API Gateway, DynamoDB, Cognito, Amazon Translate, Amazon Polly
 
 ## Frontend
 The frontend is built with Next.js, Zod, react-hook-form, Tailwind CSS, shadcn/ui, and AWS Amplify.
@@ -24,4 +24,4 @@ For state management, I’m using Zustand because it’s lightweight, intuitive,
 Lastly, I selected Amplify Gen 1 v6 for authentication with Cognito, offering a secure and straightforward way to manage user sign-ups and logins while integrating seamlessly with other AWS services.
 
 ## In Progress...
-- This project is still in progress. I'm currently working on adding more features and improving the user experience.
+This project is still in progress. I'm currently working on adding more features and improving the user experience.
