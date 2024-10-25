@@ -6,7 +6,7 @@ Verbo Translator is an app that helps users learn new languages by translating t
 
 ![Architecture Diagram](verbo-architecture-diagram.png)
 
-# Tech Stack 
+## Tech Stack 
 - Frontend: TypeScript, Next.js, Tailwind CSS, Shadcn UI, React Hook Form, Zustand
 - Backend: AWS Lambda, API Gateway, DynamoDB, Cognito, Amazon Translate, Amazon Polly
 
