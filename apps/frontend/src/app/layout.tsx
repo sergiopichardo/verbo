@@ -3,9 +3,9 @@ import localFont from "next/font/local";
 
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import Link from "next/link";
 
 import { Providers } from "@/providers";
+import { DesktopNavigation } from "@/components/desktop-navigation";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,11 +34,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <div className="flex flex-row gap-4 px-2 py-2 bg-orange-400">
-            <Link href="/">Home</Link>
-            <Link href="/login">Log in</Link>
-            <Link href="/signup">Sign up</Link>
-          </div>
+          <DesktopNavigation />
           {children}
           <Toaster />
         </Providers>
