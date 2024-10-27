@@ -5,7 +5,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import Link from "next/link";
 
-import { ConfigureAmplifyClient } from "@/components";
+import { Providers } from "@/providers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,14 +33,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ConfigureAmplifyClient />
-        <div className="flex flex-row gap-4 px-2 py-2 bg-orange-400">
-          <Link href="/">Home</Link>
-          <Link href="/login">Log in</Link>
-          <Link href="/signup">Sign up</Link>
-        </div>
-        {children}
-        <Toaster />
+        <Providers>
+          <div className="flex flex-row gap-4 px-2 py-2 bg-orange-400">
+            <Link href="/">Home</Link>
+            <Link href="/login">Log in</Link>
+            <Link href="/signup">Sign up</Link>
+          </div>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

@@ -30,12 +30,10 @@ export class RootStack extends cdk.Stack {
             appName: props.appName,
         });
 
-        // create DNS stack 
         const hostedZoneStack = new HostedZoneStack(this, `${props.appName}HostedZoneStack`, {
             domainName: props.domainName,
         });
 
-        // create Certificate stack
         const certificateStack = new CertificateStack(this, `${props.appName}CertificateStack`, {
             domainName: props.domainName,
             hostedZone: hostedZoneStack.hostedZone,
@@ -43,7 +41,6 @@ export class RootStack extends cdk.Stack {
             apiSubDomain: props.apiSubDomain,
         });
 
-        // auth stack (will go here) --> it will consume the users table 
         const authStack = new AuthStack(this, `${props.appName}AuthStack`, {
             appName: props.appName,
         });

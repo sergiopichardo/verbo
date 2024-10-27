@@ -67,6 +67,12 @@ export class StaticWebsiteHostingStack extends cdk.NestedStack {
             defaultRootObject: "index.html",
             // how cloudfront handles requests that are not successful
             errorResponses: [
+                {
+                    httpStatus: 400,
+                    responseHttpStatus: 200,
+                    responsePagePath: "/index.html",
+                    ttl: cdk.Duration.seconds(10),
+                },
                 // This configuration handles HTTP 403 (Forbidden) errors:
                 // - When a 403 error occurs, it's typically due to S3 blocking access
                 // - Instead of showing the default 403 page, it redirects to a custom 404 page
