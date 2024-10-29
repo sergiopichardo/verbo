@@ -8,6 +8,7 @@ import * as route53 from "aws-cdk-lib/aws-route53";
 
 import { RestApiService } from "../constructs/rest-api-service";
 import { TranslationService } from "../constructs/translation-service";
+import * as apigateway from "aws-cdk-lib/aws-apigateway";
 
 interface TranslationStackProps extends cdk.NestedStackProps {
     domainName: string;
@@ -29,7 +30,22 @@ export class TranslationStack extends cdk.NestedStack {
             domainName: props.domainName,
             apiSubDomain: props.apiSubDomain,
             certificate: props.certificate,
-            userPool: props.userPool
+            userPool: props.userPool,
+            stageName: props.stageName,
+            // Rate limiting configuration for the API
+            rateLimit: {
+                // Maximum number of requests per second
+                throttleRateLimit: 10,
+                
+                // Maximum number of concurrent requests allowed in bursts
+                throttleBurstLimit: 20, 
+                
+                // Total number of requests allowed per day
+                quotaLimit: 100,
+                
+                // Time period for the quota (set to daily)
+                quotaPeriod: apigateway.Period.DAY,
+            }
         })
 
         new TranslationService(this, "translationService", {

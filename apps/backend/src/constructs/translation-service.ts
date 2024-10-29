@@ -17,6 +17,7 @@ interface TranslationServiceProps {
     restApiService: RestApiService;
     hostedZone: route53.IHostedZone;
     domainName: string;
+
 }
 
 export class TranslationService extends Construct {

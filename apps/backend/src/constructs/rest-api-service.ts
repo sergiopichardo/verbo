@@ -5,6 +5,12 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cdk from "aws-cdk-lib";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
 
+const DEFAULT_RATE_LIMITS = {
+    THROTTLE_RATE: 10,  // requests per second
+    THROTTLE_BURST: 20, // burst requests
+    QUOTA_LIMIT: 100,   // requests per day
+} as const;
+
 interface RestApiServiceProps extends cdk.NestedStackProps {
     restApiName: string;
     domainName: string;
@@ -12,6 +18,13 @@ interface RestApiServiceProps extends cdk.NestedStackProps {
     certificate: acm.Certificate;
     userPool?: cognito.UserPool;
     resourceName: string;
+    stageName: string;
+    rateLimit?: {
+        throttleRateLimit?: number;  // requests per second
+        throttleBurstLimit?: number; // burst requests
+        quotaLimit?: number;         // total requests
+        quotaPeriod?: apigateway.Period; // period for quota
+    };
 }
 
 export class RestApiService extends Construct {
@@ -36,6 +49,11 @@ export class RestApiService extends Construct {
                 domainName: `${props.apiSubDomain}.${props.domainName}`,
                 certificate: props.certificate,
             },
+            deployOptions: {
+                stageName: props.stageName,
+                throttlingRateLimit: props.rateLimit?.throttleRateLimit ?? DEFAULT_RATE_LIMITS.THROTTLE_RATE,
+                throttlingBurstLimit: props.rateLimit?.throttleBurstLimit ?? DEFAULT_RATE_LIMITS.THROTTLE_BURST,
+            },
         });
 
         this.translationsResource = this.restApi.root.addResource(props.resourceName); // https://api.verbotranslator.com/translations
@@ -51,6 +69,27 @@ export class RestApiService extends Construct {
             console.log("Authorizer created");
         } else {
             console.log("No user pool provided, authorizer not created");
+        }
+
+        // Add usage plan if rate limiting is configured
+        if (props.rateLimit) {
+            const usagePlan = new apigateway.UsagePlan(this, 'GlobalUsagePlan', {
+                name: `${props.restApiName}-usage-plan`,
+                throttle: {
+                    rateLimit: props.rateLimit.throttleRateLimit ?? DEFAULT_RATE_LIMITS.THROTTLE_RATE,
+                    burstLimit: props.rateLimit.throttleBurstLimit ?? DEFAULT_RATE_LIMITS.THROTTLE_BURST,
+                },
+                ...(props.rateLimit.quotaLimit && props.rateLimit.quotaPeriod && {
+                    quota: {
+                        limit: props.rateLimit.quotaLimit,
+                        period: props.rateLimit.quotaPeriod,
+                    },
+                }),
+            });
+
+            usagePlan.addApiStage({
+                stage: this.restApi.deploymentStage,
+            });
         }
     }
 
