@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 
 import { Providers } from "@/providers";
 import { DesktopNavigation } from "@/components/desktop-navigation";
+import { Banner } from "@/components/banner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,9 +35,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <DesktopNavigation />
+          <div className="fixed top-0 left-0 w-full z-50">
+            <Banner />
+            <DesktopNavigation />
+          </div>
+
           {children}
           <Toaster />
+
         </Providers>
       </body>
     </html>

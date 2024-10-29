@@ -70,7 +70,7 @@ const LogInForm = () => {
             }
         } finally {
             // form.reset();
-            // setIsLoading(false);
+            setIsLoading(false);
         }
     }
 
@@ -99,7 +99,7 @@ const LogInForm = () => {
                             <FormItem>
                                 <FormLabel>Password</FormLabel>
                                 <FormControl>
-                                    <Input type="text" {...field} />
+                                    <Input type="password" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
