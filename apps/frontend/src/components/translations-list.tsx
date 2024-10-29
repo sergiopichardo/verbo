@@ -9,11 +9,11 @@ import { deleteTranslation } from "@/services/translations/delete-translation.se
 
 export const TranslationsList = () => {
 
-    const [translations, setTranslations] = useState<ITranslationResult[]>([]);
+    const [translations, setTempTranslations] = useState<ITranslationResult[]>([]);
 
     const handleFetchTranslations = async () => {
         const data = await getTranslations();
-        setTranslations(data);
+        setTempTranslations(data);
     };
 
     const handleDeleteTranslation = async (translationId: string) => {
@@ -21,7 +21,9 @@ export const TranslationsList = () => {
             translationId: translationId,
         });
 
-        setTranslations(translations.filter(translation => translation.requestId !== translationId));
+        setTempTranslations(
+            translations.filter(translation => translation.requestId !== translationId)
+        );
     };
 
     if (translations.length === 0) {
