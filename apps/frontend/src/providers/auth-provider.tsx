@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             switch (payload.event) {
                 case 'signedIn':
                     fetchCurrentAuthUser();
-                    router.push('/dashboard');
+                    router.push('/');
                     break;
                 case 'signedOut':
                     resetAuthState();
