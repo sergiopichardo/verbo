@@ -10,13 +10,13 @@ import { ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 
 import { Textarea } from "@/components/ui/textarea";
@@ -31,141 +31,143 @@ import { ITranslateTextInput } from "@verbo/shared-types";
 
 type TranslationFormProps = {};
 
+
+
 export default function TranslationForm(props: TranslationFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
 
-  const form = useForm<TTranslateForm>({
-    resolver: zodResolver(translateFormSchema),
-    defaultValues: {
-      inputText: "",
-      inputLanguage: "",
-      outputLanguage: "",
-    },
-  });
+    const form = useForm<TTranslateForm>({
+        resolver: zodResolver(translateFormSchema),
+        defaultValues: {
+            inputText: "",
+            inputLanguage: "",
+            outputLanguage: "",
+        },
+    });
 
-  const onSubmit = async (data: TTranslateForm) => {
-    if (!data.inputText || !data.inputLanguage || !data.outputLanguage) {
-      return;
-    }
-
-    try {
-
-      console.log("data", data);
-      setIsLoading(true);
-
-
-      const translationPayload: ITranslateTextInput = {
-        inputLanguage: data.inputLanguage,
-        outputLanguage: data.outputLanguage,
-        inputText: data.inputText,
-      };
-
-      let user = null;
-      let translation = null;
-
-      try {
-        user = await getCurrentUser();
-
-        if (user) {
-          translation = await translateText(translationPayload);
-        } else {
-          throw new Error("User not logged in");
+    const onSubmit = async (data: TTranslateForm) => {
+        if (!data.inputText || !data.inputLanguage || !data.outputLanguage) {
+            return;
         }
-      } catch (error) {
-        translation = await createPublicTranslation(translationPayload);
-      }
 
-      if (!translation) {
-        throw new Error("Error in translation");
-      }
+        try {
 
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error in translation", error);
-        toast.error(error.message, {
-          duration: 5000,
-        });
-      }
-    } finally {
-      setIsLoading(false);
-      // form.reset({
-      //   inputText: "",
-      //   inputLanguage: "",
-      //   outputLanguage: "",
-      // });
-    }
+            console.log("data", data);
+            setIsLoading(true);
 
-  };
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex align-center">
-          <FormField
-            control={form.control}
-            name="inputLanguage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Input Language</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Input Language" />
-                </FormControl>
-                <FormMessage />
-                <FormDescription className="sr-only">
-                  The text to be translated
-                </FormDescription>
-              </FormItem>
-            )}
-          />
+            const translationPayload: ITranslateTextInput = {
+                inputLanguage: data.inputLanguage,
+                outputLanguage: data.outputLanguage,
+                inputText: data.inputText,
+            };
 
-          <span className="mt-8 py-2 px-4">
-            <ArrowLeftRight className="w-4 h-4" />
-          </span>
+            let user = null;
+            let translation = null;
 
-          <FormField
-            control={form.control}
-            name="outputLanguage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Output Language</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Output Language" />
-                </FormControl>
-                <FormMessage />
-                <FormDescription className="sr-only">
-                  The text to be translated
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-        </div>
+            try {
+                user = await getCurrentUser();
 
-        <FormField
-          control={form.control}
-          name="inputText"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Input Text</FormLabel>
-              <FormControl>
-                <Textarea
-                  {...field}
-                  placeholder="Enter text to translate"
-                  rows={4}
+                if (user) {
+                    translation = await translateText(translationPayload);
+                } else {
+                    throw new Error("User not logged in");
+                }
+            } catch (error) {
+                translation = await createPublicTranslation(translationPayload);
+            }
+
+            if (!translation) {
+                throw new Error("Error in translation");
+            }
+
+        } catch (error) {
+            if (error instanceof Error) {
+                console.error("Error in translation", error);
+                toast.error(error.message, {
+                    duration: 5000,
+                });
+            }
+        } finally {
+            setIsLoading(false);
+            // form.reset({
+            //   inputText: "",
+            //   inputLanguage: "",
+            //   outputLanguage: "",
+            // });
+        }
+
+    };
+
+    return (
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="flex align-center">
+                    <FormField
+                        control={form.control}
+                        name="inputLanguage"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Input Language</FormLabel>
+                                <FormControl>
+                                    <Input {...field} placeholder="Input Language" />
+                                </FormControl>
+                                <FormMessage />
+                                <FormDescription className="sr-only">
+                                    The text to be translated
+                                </FormDescription>
+                            </FormItem>
+                        )}
+                    />
+
+                    <span className="mt-8 py-2 px-4">
+                        <ArrowLeftRight className="w-4 h-4" />
+                    </span>
+
+                    <FormField
+                        control={form.control}
+                        name="outputLanguage"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Output Language</FormLabel>
+                                <FormControl>
+                                    <Input {...field} placeholder="Output Language" />
+                                </FormControl>
+                                <FormMessage />
+                                <FormDescription className="sr-only">
+                                    The text to be translated
+                                </FormDescription>
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
+                <FormField
+                    control={form.control}
+                    name="inputText"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Input Text</FormLabel>
+                            <FormControl>
+                                <Textarea
+                                    {...field}
+                                    placeholder="Enter text to translate"
+                                    rows={4}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                            <FormDescription className="sr-only">
+                                The text to be translated
+                            </FormDescription>
+                        </FormItem>
+                    )}
                 />
-              </FormControl>
-              <FormMessage />
-              <FormDescription className="sr-only">
-                The text to be translated
-              </FormDescription>
-            </FormItem>
-          )}
-        />
 
-        <Button type="submit" className="mt-4" disabled={isLoading}>
-          {isLoading ? "Translating..." : "Translate"}
-        </Button>
-      </form>
-    </Form>
-  );
+                <Button type="submit" className="mt-4" disabled={isLoading}>
+                    {isLoading ? "Translating..." : "Translate"}
+                </Button>
+            </form>
+        </Form>
+    );
 }
