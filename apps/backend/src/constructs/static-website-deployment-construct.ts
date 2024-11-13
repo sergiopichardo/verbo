@@ -21,7 +21,7 @@ export class StaticWebsiteDeploymentConstruct extends Construct {
             distributionPaths: ["/*"], // The file paths to invalidate in the CloudFront distribution cache.
             destinationBucket: props.destinationBucket,
             retainOnDelete: false,
-            memoryLimit: 512,
+            memoryLimit: 128,
         });
     }
 }

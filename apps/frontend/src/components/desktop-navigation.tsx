@@ -3,11 +3,10 @@
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import { signOut } from "aws-amplify/auth";
-import { Button } from "./ui/button";
 
 export function DesktopNavigation() {
 
-    const { isLoggedIn } = useAuth();
+    const { isLoggedIn, isLoading } = useAuth();
 
     return (
         <nav className="flex px-2 py-2 bg-blue-500 text-white">

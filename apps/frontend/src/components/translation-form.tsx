@@ -26,23 +26,23 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import { getCurrentUser } from "aws-amplify/auth";
 import { createPublicTranslation } from "@/services/translations/create-public-translation.service";
-import { ITranslateTextInput } from "@verbo/shared-types";
+import { ITranslateTextInput, ITranslationResponse, ITranslationResult } from "@verbo/shared-types";
+import CountrySelect from "./language-dropdown";
 
 
 type TranslationFormProps = {};
 
-
-
 export default function TranslationForm(props: TranslationFormProps) {
     const [isLoading, setIsLoading] = useState(false);
+    const [translationResult, setTranslationResult] = useState<string>("");
 
 
     const form = useForm<TTranslateForm>({
         resolver: zodResolver(translateFormSchema),
         defaultValues: {
-            inputText: "",
-            inputLanguage: "",
-            outputLanguage: "",
+            inputText: "Hello, how are you?",
+            inputLanguage: "en",
+            outputLanguage: "es",
         },
     });
 
@@ -57,7 +57,7 @@ export default function TranslationForm(props: TranslationFormProps) {
             setIsLoading(true);
 
 
-            const translationPayload: ITranslateTextInput = {
+            const translationInput: ITranslateTextInput = {
                 inputLanguage: data.inputLanguage,
                 outputLanguage: data.outputLanguage,
                 inputText: data.inputText,
@@ -70,17 +70,20 @@ export default function TranslationForm(props: TranslationFormProps) {
                 user = await getCurrentUser();
 
                 if (user) {
-                    translation = await translateText(translationPayload);
+                    translation = await translateText(translationInput);
                 } else {
                     throw new Error("User not logged in");
                 }
             } catch (error) {
-                translation = await createPublicTranslation(translationPayload);
+                translation = await createPublicTranslation(translationInput);
             }
 
             if (!translation) {
                 throw new Error("Error in translation");
             }
+
+            console.log("translation result:", translation);
+            setTranslationResult(translation.targetText);
 
         } catch (error) {
             if (error instanceof Error) {
@@ -103,41 +106,41 @@ export default function TranslationForm(props: TranslationFormProps) {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="flex align-center">
+                <div className="flex items-center gap-4">
                     <FormField
                         control={form.control}
                         name="inputLanguage"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Input Language</FormLabel>
+                            <FormItem className="flex-1">
+                                <FormLabel className="sr-only">Input Language</FormLabel>
                                 <FormControl>
-                                    <Input {...field} placeholder="Input Language" />
+                                    <CountrySelect
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                    />
                                 </FormControl>
                                 <FormMessage />
-                                <FormDescription className="sr-only">
-                                    The text to be translated
-                                </FormDescription>
                             </FormItem>
                         )}
                     />
 
-                    <span className="mt-8 py-2 px-4">
-                        <ArrowLeftRight className="w-4 h-4" />
+                    <span className="flex h-9 items-center mt-2 justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background">
+                        <ArrowLeftRight className="h-4 w-4 opacity-50" />
                     </span>
 
                     <FormField
                         control={form.control}
                         name="outputLanguage"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Output Language</FormLabel>
+                            <FormItem className="flex-1">
+                                <FormLabel className="sr-only">Output Language</FormLabel>
                                 <FormControl>
-                                    <Input {...field} placeholder="Output Language" />
+                                    <CountrySelect
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                    />
                                 </FormControl>
                                 <FormMessage />
-                                <FormDescription className="sr-only">
-                                    The text to be translated
-                                </FormDescription>
                             </FormItem>
                         )}
                     />
@@ -148,7 +151,7 @@ export default function TranslationForm(props: TranslationFormProps) {
                     name="inputText"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Input Text</FormLabel>
+                            <FormLabel className="sr-only">Input Text</FormLabel>
                             <FormControl>
                                 <Textarea
                                     {...field}
