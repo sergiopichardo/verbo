@@ -64,7 +64,7 @@ export default function TranslationForm(props: TranslationFormProps) {
             };
 
             let user = null;
-            let translation = null;
+            let translation: ITranslationResponse | null = null;
 
             try {
                 user = await getCurrentUser();
@@ -76,6 +76,8 @@ export default function TranslationForm(props: TranslationFormProps) {
                 }
             } catch (error) {
                 translation = await createPublicTranslation(translationInput);
+                console.log("public translation:", translation);
+                // TODO: add return message to local storage
             }
 
             if (!translation) {

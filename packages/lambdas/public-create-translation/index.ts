@@ -52,13 +52,16 @@ export const handler: APIGatewayProxyHandler = async (
             sourceText
         });
 
-        const ITranslationResponse: ITranslationResponse = {
+        const translationResponse: ITranslationResponse & ITranslationRequest = {
             timestamp: new Date().toISOString(),
             targetText: translatedText,
+            sourceLanguageCode,
+            targetLanguageCode,
+            sourceText,
         };
 
         // NOTE: we don't save the translation to the table because it's a public endpoint, we simply return the translation
-        return gateway.createSuccessJsonResponse(ITranslationResponse);
+        return gateway.createSuccessJsonResponse(translationResponse);
 
     } catch (error: unknown) {
         if (error instanceof Error) {
