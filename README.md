@@ -25,3 +25,5 @@ Lastly, I selected Amplify Gen 1 v6 for authentication with Cognito, offering a 
 
 ## In Progress...
 This project is still in progress. I'm currently working on adding more features and improving the user experience.
+
+This is just an example
